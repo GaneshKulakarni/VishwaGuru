@@ -96,10 +96,10 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     return ConversationHandler.END
 
-def main():
+async def run_bot():
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
     if not token:
-        print("Error: TELEGRAM_BOT_TOKEN environment variable not set.")
+        print("Warning: TELEGRAM_BOT_TOKEN environment variable not set. Bot will not start.")
         return
 
     application = ApplicationBuilder().token(token).build()
@@ -116,8 +116,25 @@ def main():
 
     application.add_handler(conv_handler)
 
-    print("Bot is running...")
-    application.run_polling()
+    print("Bot is starting...")
+    # Initialize and start the application
+    await application.initialize()
+    await application.start()
+    await application.updater.start_polling()
+
+    # Keep the bot running
+    # In a real asyncio loop, we might wait on a future or similar.
+    # But since this is a background task in FastAPI, it will run until the loop stops.
+    # However, application.updater.start_polling() is non-blocking (starts background task).
+    # We don't need to block here.
+
+    # Wait for stop signal?
+    # For MVP simplicity in FastAPI lifespan:
+    # We just return application so we can stop it later.
+    return application
 
 if __name__ == '__main__':
-    main()
+    import asyncio
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(run_bot())
+    loop.run_forever()

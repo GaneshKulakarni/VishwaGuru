@@ -1,5 +1,7 @@
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from backend.database import engine, get_db
 from backend.models import Base, Issue
@@ -8,12 +10,26 @@ import json
 import os
 import shutil
 import uuid
+import asyncio
 from fastapi import Depends
+from contextlib import asynccontextmanager
+from backend.bot import run_bot
 
 # Create tables if they don't exist
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="VishwaGuru Backend")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Start Telegram Bot
+    bot_app = await run_bot()
+    yield
+    # Shutdown: Stop Telegram Bot
+    if bot_app:
+        await bot_app.updater.stop()
+        await bot_app.stop()
+        await bot_app.shutdown()
+
+app = FastAPI(title="VishwaGuru Backend", lifespan=lifespan)
 
 # Allow CORS for frontend
 app.add_middleware(
@@ -23,10 +39,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-@app.get("/")
-def read_root():
-    return {"message": "VishwaGuru Backend is running"}
 
 @app.get("/health")
 def health_check():
@@ -86,3 +98,20 @@ def get_responsibility_map():
         return data
     except FileNotFoundError:
         return {"error": "Data file not found"}
+
+# Serve Frontend (Must be last)
+# Mount the 'dist' directory as a static directory
+frontend_dist = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "dist")
+
+if os.path.exists(frontend_dist):
+    app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist, "assets")), name="assets")
+
+    @app.get("/{catchall:path}")
+    async def serve_react_app(catchall: str):
+        # Check if file exists in dist (e.g., favicon.ico)
+        file_path = os.path.join(frontend_dist, catchall)
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+             return FileResponse(file_path)
+
+        # Otherwise return index.html for SPA
+        return FileResponse(os.path.join(frontend_dist, "index.html"))
