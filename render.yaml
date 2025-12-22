@@ -3,7 +3,7 @@ services:
   - type: web
     name: vishwaguru-backend
     runtime: python
-    buildCommand: "./render-build.sh"
+    buildCommand: "pip install -r backend/requirements.txt"
     startCommand: "cd backend && python __main__.py"
     envVars:
       - key: PYTHON_VERSION
@@ -17,14 +17,8 @@ services:
         sync: false  # Must be set in Render dashboard
       - key: GEMINI_API_KEY
         sync: false  # Must be set in Render dashboard
+      - key: FRONTEND_URL
+        sync: false  # Set to your Netlify URL (e.g., https://your-app.netlify.app)
       - key: DATABASE_URL
-        fromDatabase:
-          name: vishwaguru-db
-          property: connectionString
+        sync: false  # Set to your Neon database connection string
     healthCheckPath: /health
-
-  # PostgreSQL Database
-  - type: pserv
-    name: vishwaguru-db
-    plan: free
-    ipAllowList: []
