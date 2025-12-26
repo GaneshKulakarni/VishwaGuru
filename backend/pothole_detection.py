@@ -1,4 +1,3 @@
-from ultralyticsplus import YOLO
 import logging
 
 # Configure logging
@@ -8,8 +7,16 @@ logger = logging.getLogger(__name__)
 _model = None
 
 def load_model():
+    """
+    Loads the YOLO model lazily.
+    The model file will be downloaded on the first call if not cached.
+    This prevents blocking the application startup.
+    """
     logger.info("Loading Pothole Detection Model...")
     try:
+        # Move import here to prevent blocking startup with heavy imports/checks
+        from ultralyticsplus import YOLO
+
         model = YOLO('keremberke/yolov8n-pothole-segmentation')
 
         # set model parameters
