@@ -30,6 +30,14 @@ from flooding_detection import detect_flooding
 from infrastructure_detection import detect_infrastructure
 from PIL import Image
 from init_db import migrate_db
+import logging
+
+# Configure structured logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # Create tables if they don't exist
 Base.metadata.create_all(bind=engine)
@@ -134,38 +142,42 @@ async def create_issue(
     image: UploadFile = File(None),
     db: Session = Depends(get_db)
 ):
-    # Save image if provided
-    image_path = None
-    if image:
-        upload_dir = "data/uploads"
-        os.makedirs(upload_dir, exist_ok=True)
-        # Generate unique filename
-        filename = f"{uuid.uuid4()}_{image.filename}"
-        image_path = os.path.join(upload_dir, filename)
+    try:
+        # Save image if provided
+        image_path = None
+        if image:
+            upload_dir = "data/uploads"
+            os.makedirs(upload_dir, exist_ok=True)
+            # Generate unique filename
+            filename = f"{uuid.uuid4()}_{image.filename}"
+            image_path = os.path.join(upload_dir, filename)
 
-        # Offload blocking file I/O to threadpool
-        await run_in_threadpool(save_file_blocking, image.file, image_path)
+            # Offload blocking file I/O to threadpool
+            await run_in_threadpool(save_file_blocking, image.file, image_path)
 
-    # Save to DB
-    new_issue = Issue(
-        description=description,
-        category=category,
-        image_path=image_path,
-        source="web",
-        user_email=user_email
-    )
+        # Save to DB
+        new_issue = Issue(
+            description=description,
+            category=category,
+            image_path=image_path,
+            source="web",
+            user_email=user_email
+        )
 
-    # Offload blocking DB operations to threadpool
-    await run_in_threadpool(save_issue_db, db, new_issue)
+        # Offload blocking DB operations to threadpool
+        await run_in_threadpool(save_issue_db, db, new_issue)
 
-    # Generate Action Plan (AI)
-    action_plan = await generate_action_plan(description, category, image_path)
+        # Generate Action Plan (AI)
+        action_plan = await generate_action_plan(description, category, image_path)
 
-    return {
-        "id": new_issue.id,
-        "message": "Issue reported successfully",
-        "action_plan": action_plan
-    }
+        return {
+            "id": new_issue.id,
+            "message": "Issue reported successfully",
+            "action_plan": action_plan
+        }
+    except Exception as e:
+        logger.error(f"Error creating issue: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.post("/api/issues/{issue_id}/vote")
 def upvote_issue(issue_id: int, db: Session = Depends(get_db)):
@@ -199,7 +211,11 @@ def get_responsibility_map():
     try:
         return _load_responsibility_map()
     except FileNotFoundError:
-        return {"error": "Data file not found"}
+        logger.error("Responsibility map file not found", exc_info=True)
+        raise HTTPException(status_code=404, detail="Data file not found")
+    except Exception as e:
+        logger.error(f"Error loading responsibility map: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 class ChatRequest(BaseModel):
     query: str
@@ -231,62 +247,61 @@ def get_recent_issues(db: Session = Depends(get_db)):
 async def detect_pothole_endpoint(image: UploadFile = File(...)):
     # Convert to PIL Image directly from file object to save memory
     try:
-        pil_image = Image.open(image.file)
-    except Exception:
-         raise HTTPException(status_code=400, detail="Invalid image file")
+        pil_image = await run_in_threadpool(Image.open, image.file)
+    except Exception as e:
+        logger.error(f"Invalid image file for pothole detection: {e}", exc_info=True)
+        raise HTTPException(status_code=400, detail="Invalid image file")
 
     # Run detection (blocking, so run in threadpool)
     try:
         detections = await run_in_threadpool(detect_potholes, pil_image)
+        return {"detections": detections}
     except Exception as e:
-        print(f"Detection error: {e}")
-        raise HTTPException(status_code=500, detail="Error processing image for detection")
-
-    return {"detections": detections}
+        logger.error(f"Pothole detection error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.post("/api/detect-infrastructure")
 async def detect_infrastructure_endpoint(image: UploadFile = File(...)):
     # Convert to PIL Image directly from file object to save memory
     try:
-        pil_image = Image.open(image.file)
-    except Exception:
-         raise HTTPException(status_code=400, detail="Invalid image file")
+        pil_image = await run_in_threadpool(Image.open, image.file)
+    except Exception as e:
+        logger.error(f"Invalid image file for infrastructure detection: {e}", exc_info=True)
+        raise HTTPException(status_code=400, detail="Invalid image file")
 
     # Run detection (blocking, so run in threadpool)
     try:
         detections = await run_in_threadpool(detect_infrastructure, pil_image)
+        return {"detections": detections}
     except Exception as e:
-        print(f"Detection error: {e}")
-        # Return empty detections on error instead of 500 to keep UI responsive
-        return {"detections": [], "error": str(e)}
-
-    return {"detections": detections}
+        logger.error(f"Infrastructure detection error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.post("/api/detect-flooding")
 async def detect_flooding_endpoint(image: UploadFile = File(...)):
     # Convert to PIL Image directly from file object to save memory
     try:
-        pil_image = Image.open(image.file)
-    except Exception:
-         raise HTTPException(status_code=400, detail="Invalid image file")
+        pil_image = await run_in_threadpool(Image.open, image.file)
+    except Exception as e:
+        logger.error(f"Invalid image file for flooding detection: {e}", exc_info=True)
+        raise HTTPException(status_code=400, detail="Invalid image file")
 
     # Run detection (blocking, so run in threadpool)
     try:
         detections = await run_in_threadpool(detect_flooding, pil_image)
+        return {"detections": detections}
     except Exception as e:
-        print(f"Detection error: {e}")
-        # Return empty detections on error instead of 500 to keep UI responsive
-        return {"detections": [], "error": str(e)}
-
-    return {"detections": detections}
+        logger.error(f"Flooding detection error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.post("/api/detect-vandalism")
 async def detect_vandalism_endpoint(image: UploadFile = File(...)):
     # Convert to PIL Image directly from file object to save memory
     try:
-        pil_image = Image.open(image.file)
-    except Exception:
-         raise HTTPException(status_code=400, detail="Invalid image file")
+        pil_image = await run_in_threadpool(Image.open, image.file)
+    except Exception as e:
+        logger.error(f"Invalid image file for vandalism detection: {e}", exc_info=True)
+        raise HTTPException(status_code=400, detail="Invalid image file")
 
     # Run detection (blocking, so run in threadpool)
     # Using HF API, which is network bound, but we still run it in threadpool
@@ -294,29 +309,27 @@ async def detect_vandalism_endpoint(image: UploadFile = File(...)):
     # However, hf_service uses sync calls (InferenceClient), so wrapping in threadpool is correct.
     try:
         detections = await run_in_threadpool(detect_vandalism, pil_image)
+        return {"detections": detections}
     except Exception as e:
-        print(f"Detection error: {e}")
-        # Return empty detections on error instead of 500 to keep UI responsive
-        return {"detections": [], "error": str(e)}
-
-    return {"detections": detections}
+        logger.error(f"Vandalism detection error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.post("/api/detect-garbage")
 async def detect_garbage_endpoint(image: UploadFile = File(...)):
     # Convert to PIL Image directly from file object to save memory
     try:
-        pil_image = Image.open(image.file)
-    except Exception:
-         raise HTTPException(status_code=400, detail="Invalid image file")
+        pil_image = await run_in_threadpool(Image.open, image.file)
+    except Exception as e:
+        logger.error(f"Invalid image file for garbage detection: {e}", exc_info=True)
+        raise HTTPException(status_code=400, detail="Invalid image file")
 
     # Run detection (blocking, so run in threadpool)
     try:
         detections = await run_in_threadpool(detect_garbage, pil_image)
+        return {"detections": detections}
     except Exception as e:
-        print(f"Detection error: {e}")
-        raise HTTPException(status_code=500, detail="Error processing image for detection")
-
-    return {"detections": detections}
+        logger.error(f"Garbage detection error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.get("/api/mh/rep-contacts")
 async def get_maharashtra_rep_contacts(pincode: str = Query(..., min_length=6, max_length=6)):
