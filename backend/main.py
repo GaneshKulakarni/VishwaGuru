@@ -25,7 +25,7 @@ from contextlib import asynccontextmanager
 from bot import run_bot
 from pothole_detection import detect_potholes
 from garbage_detection import detect_garbage
-from hf_service import detect_vandalism_clip, detect_flooding_clip, detect_infrastructure_clip
+from unified_detection_service import detect_vandalism, detect_flooding, detect_infrastructure, get_detection_status
 from PIL import Image
 from init_db import migrate_db
 import logging
@@ -129,6 +129,18 @@ def root():
 @app.get("/health")
 def health():
     return {"status": "healthy"}
+
+@app.get("/api/ml-status")
+async def ml_status():
+    """
+    Get the status of the ML detection service.
+    Returns information about which backend is being used (local or HF API).
+    """
+    status = await get_detection_status()
+    return {
+        "status": "ok",
+        "ml_service": status
+    }
 
 def save_file_blocking(file_obj, path):
     with open(path, "wb") as buffer:
@@ -284,9 +296,9 @@ async def detect_infrastructure_endpoint(image: UploadFile = File(...)):
         logger.error(f"Invalid image file for infrastructure detection: {e}", exc_info=True)
         raise HTTPException(status_code=400, detail="Invalid image file")
 
-    # Run detection (async now, so no threadpool needed for the detection call itself)
+    # Run detection using unified service (local ML by default)
     try:
-        detections = await detect_infrastructure_clip(pil_image)
+        detections = await detect_infrastructure(pil_image)
         return {"detections": detections}
     except Exception as e:
         logger.error(f"Infrastructure detection error: {e}", exc_info=True)
@@ -301,9 +313,9 @@ async def detect_flooding_endpoint(image: UploadFile = File(...)):
         logger.error(f"Invalid image file for flooding detection: {e}", exc_info=True)
         raise HTTPException(status_code=400, detail="Invalid image file")
 
-    # Run detection (async)
+    # Run detection using unified service (local ML by default)
     try:
-        detections = await detect_flooding_clip(pil_image)
+        detections = await detect_flooding(pil_image)
         return {"detections": detections}
     except Exception as e:
         logger.error(f"Flooding detection error: {e}", exc_info=True)
@@ -318,9 +330,9 @@ async def detect_vandalism_endpoint(image: UploadFile = File(...)):
         logger.error(f"Invalid image file for vandalism detection: {e}", exc_info=True)
         raise HTTPException(status_code=400, detail="Invalid image file")
 
-    # Run detection (async)
+    # Run detection using unified service (local ML by default)
     try:
-        detections = await detect_vandalism_clip(pil_image)
+        detections = await detect_vandalism(pil_image)
         return {"detections": detections}
     except Exception as e:
         logger.error(f"Vandalism detection error: {e}", exc_info=True)
