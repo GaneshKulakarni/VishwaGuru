@@ -25,19 +25,35 @@ def load_general_model():
     """
     logger.info("Loading General Object Detection Model...")
     try:
-        from ultralyticsplus import YOLO
-        # Using YOLOv8 medium model for general object detection
-        # This model can detect 80+ common objects which we can use for
-        # vandalism, infrastructure, and flooding detection
-        model = YOLO('yolov8m')
+        import torch
+        from ultralytics import YOLO
         
-        model.overrides['conf'] = 0.25
-        model.overrides['iou'] = 0.45
-        model.overrides['agnostic_nms'] = False
-        model.overrides['max_det'] = 1000
+        # Monkey-patch torch.load to use weights_only=False for YOLO model loading
+        # This is safe because YOLO models from ultralytics are from a trusted source
+        original_load = torch.load
+        def patched_load(*args, **kwargs):
+            kwargs['weights_only'] = False
+            return original_load(*args, **kwargs)
+        torch.load = patched_load
         
-        logger.info("General Object Detection Model loaded successfully.")
-        return model
+        try:
+            # Using YOLOv8 nano model for general object detection (lighter weight)
+            # This model can detect 80+ common objects which we can use for
+            # vandalism, infrastructure, and flooding detection
+            model = YOLO('yolov8n.pt')
+            
+            # Configure model parameters
+            model.overrides['conf'] = 0.25
+            model.overrides['iou'] = 0.45
+            model.overrides['agnostic_nms'] = False
+            model.overrides['max_det'] = 1000
+            
+            logger.info("General Object Detection Model loaded successfully.")
+            return model
+        finally:
+            # Restore original torch.load
+            torch.load = original_load
+            
     except Exception as e:
         logger.error(f"Failed to load general detection model: {e}")
         return None
