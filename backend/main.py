@@ -321,9 +321,9 @@ async def detect_pothole_endpoint(image: UploadFile = File(...)):
 
 @app.post("/api/detect-infrastructure")
 async def detect_infrastructure_endpoint(request: Request, image: UploadFile = File(...)):
-    # Convert to PIL Image directly from file object to save memory
+    # Read bytes directly from UploadFile to avoid PIL overhead
     try:
-        pil_image = await run_in_threadpool(Image.open, image.file)
+        image_bytes = await image.read()
     except Exception as e:
         logger.error(f"Invalid image file for infrastructure detection: {e}", exc_info=True)
         raise HTTPException(status_code=400, detail="Invalid image file")
@@ -332,7 +332,7 @@ async def detect_infrastructure_endpoint(request: Request, image: UploadFile = F
     try:
         # Use shared HTTP client from app state
         client = request.app.state.http_client
-        detections = await detect_infrastructure_clip(pil_image, client=client)
+        detections = await detect_infrastructure_clip(image_bytes, client=client)
         return {"detections": detections}
     except Exception as e:
         logger.error(f"Infrastructure detection error: {e}", exc_info=True)
@@ -340,9 +340,9 @@ async def detect_infrastructure_endpoint(request: Request, image: UploadFile = F
 
 @app.post("/api/detect-flooding")
 async def detect_flooding_endpoint(request: Request, image: UploadFile = File(...)):
-    # Convert to PIL Image directly from file object to save memory
+    # Read bytes directly from UploadFile to avoid PIL overhead
     try:
-        pil_image = await run_in_threadpool(Image.open, image.file)
+        image_bytes = await image.read()
     except Exception as e:
         logger.error(f"Invalid image file for flooding detection: {e}", exc_info=True)
         raise HTTPException(status_code=400, detail="Invalid image file")
@@ -351,7 +351,7 @@ async def detect_flooding_endpoint(request: Request, image: UploadFile = File(..
     try:
         # Use shared HTTP client from app state
         client = request.app.state.http_client
-        detections = await detect_flooding_clip(pil_image, client=client)
+        detections = await detect_flooding_clip(image_bytes, client=client)
         return {"detections": detections}
     except Exception as e:
         logger.error(f"Flooding detection error: {e}", exc_info=True)
@@ -359,9 +359,9 @@ async def detect_flooding_endpoint(request: Request, image: UploadFile = File(..
 
 @app.post("/api/detect-vandalism")
 async def detect_vandalism_endpoint(request: Request, image: UploadFile = File(...)):
-    # Convert to PIL Image directly from file object to save memory
+    # Read bytes directly from UploadFile to avoid PIL overhead
     try:
-        pil_image = await run_in_threadpool(Image.open, image.file)
+        image_bytes = await image.read()
     except Exception as e:
         logger.error(f"Invalid image file for vandalism detection: {e}", exc_info=True)
         raise HTTPException(status_code=400, detail="Invalid image file")
@@ -370,7 +370,7 @@ async def detect_vandalism_endpoint(request: Request, image: UploadFile = File(.
     try:
         # Use shared HTTP client from app state
         client = request.app.state.http_client
-        detections = await detect_vandalism_clip(pil_image, client=client)
+        detections = await detect_vandalism_clip(image_bytes, client=client)
         return {"detections": detections}
     except Exception as e:
         logger.error(f"Vandalism detection error: {e}", exc_info=True)
@@ -396,14 +396,14 @@ async def detect_garbage_endpoint(image: UploadFile = File(...)):
 @app.post("/api/detect-illegal-parking")
 async def detect_illegal_parking_endpoint(request: Request, image: UploadFile = File(...)):
     try:
-        pil_image = await run_in_threadpool(Image.open, image.file)
+        image_bytes = await image.read()
     except Exception as e:
         logger.error(f"Invalid image file: {e}", exc_info=True)
         raise HTTPException(status_code=400, detail="Invalid image file")
 
     try:
         client = request.app.state.http_client
-        detections = await detect_illegal_parking_clip(pil_image, client=client)
+        detections = await detect_illegal_parking_clip(image_bytes, client=client)
         return {"detections": detections}
     except Exception as e:
         logger.error(f"Illegal parking detection error: {e}", exc_info=True)
@@ -412,14 +412,14 @@ async def detect_illegal_parking_endpoint(request: Request, image: UploadFile = 
 @app.post("/api/detect-street-light")
 async def detect_street_light_endpoint(request: Request, image: UploadFile = File(...)):
     try:
-        pil_image = await run_in_threadpool(Image.open, image.file)
+        image_bytes = await image.read()
     except Exception as e:
         logger.error(f"Invalid image file: {e}", exc_info=True)
         raise HTTPException(status_code=400, detail="Invalid image file")
 
     try:
         client = request.app.state.http_client
-        detections = await detect_street_light_clip(pil_image, client=client)
+        detections = await detect_street_light_clip(image_bytes, client=client)
         return {"detections": detections}
     except Exception as e:
         logger.error(f"Street light detection error: {e}", exc_info=True)
@@ -428,14 +428,14 @@ async def detect_street_light_endpoint(request: Request, image: UploadFile = Fil
 @app.post("/api/detect-fire")
 async def detect_fire_endpoint(request: Request, image: UploadFile = File(...)):
     try:
-        pil_image = await run_in_threadpool(Image.open, image.file)
+        image_bytes = await image.read()
     except Exception as e:
         logger.error(f"Invalid image file: {e}", exc_info=True)
         raise HTTPException(status_code=400, detail="Invalid image file")
 
     try:
         client = request.app.state.http_client
-        detections = await detect_fire_clip(pil_image, client=client)
+        detections = await detect_fire_clip(image_bytes, client=client)
         return {"detections": detections}
     except Exception as e:
         logger.error(f"Fire detection error: {e}", exc_info=True)
@@ -444,14 +444,14 @@ async def detect_fire_endpoint(request: Request, image: UploadFile = File(...)):
 @app.post("/api/detect-stray-animal")
 async def detect_stray_animal_endpoint(request: Request, image: UploadFile = File(...)):
     try:
-        pil_image = await run_in_threadpool(Image.open, image.file)
+        image_bytes = await image.read()
     except Exception as e:
         logger.error(f"Invalid image file: {e}", exc_info=True)
         raise HTTPException(status_code=400, detail="Invalid image file")
 
     try:
         client = request.app.state.http_client
-        detections = await detect_stray_animal_clip(pil_image, client=client)
+        detections = await detect_stray_animal_clip(image_bytes, client=client)
         return {"detections": detections}
     except Exception as e:
         logger.error(f"Stray animal detection error: {e}", exc_info=True)
@@ -460,14 +460,14 @@ async def detect_stray_animal_endpoint(request: Request, image: UploadFile = Fil
 @app.post("/api/detect-blocked-road")
 async def detect_blocked_road_endpoint(request: Request, image: UploadFile = File(...)):
     try:
-        pil_image = await run_in_threadpool(Image.open, image.file)
+        image_bytes = await image.read()
     except Exception as e:
         logger.error(f"Invalid image file: {e}", exc_info=True)
         raise HTTPException(status_code=400, detail="Invalid image file")
 
     try:
         client = request.app.state.http_client
-        detections = await detect_blocked_road_clip(pil_image, client=client)
+        detections = await detect_blocked_road_clip(image_bytes, client=client)
         return {"detections": detections}
     except Exception as e:
         logger.error(f"Blocked road detection error: {e}", exc_info=True)
