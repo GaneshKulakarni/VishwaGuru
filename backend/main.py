@@ -41,6 +41,8 @@ import logging
 import time
 import httpx
 from cache import recent_issues_cache
+from typing import List
+from schemas import IssueResponse, IssueCreateResponse, DetectionResponse, ActionPlan, ChatRequest
 
 # Configure structured logging
 logging.basicConfig(
@@ -216,11 +218,11 @@ async def create_issue(
         # Invalidate cache
         recent_issues_cache.invalidate()
 
-        return {
-            "id": new_issue.id,
-            "message": "Issue reported successfully",
-            "action_plan": action_plan_data
-        }
+        return IssueCreateResponse(
+            id=new_issue.id,
+            message="Issue reported successfully",
+            action_plan=action_plan_data
+        )
     except Exception as e:
         logger.error(f"Error creating issue: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error")
@@ -263,40 +265,51 @@ def get_responsibility_map():
         logger.error(f"Error loading responsibility map: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error")
 
-class ChatRequest(BaseModel):
-    query: str
-
 @app.post("/api/chat")
 async def chat_endpoint(request: ChatRequest):
     ai_services = get_ai_services()
     response = await ai_services.chat_service.chat(request.query)
     return {"response": response}
 
-@app.get("/api/issues/recent")
+@app.get("/api/issues/recent", response_model=List[IssueResponse])
 def get_recent_issues(db: Session = Depends(get_db)):
     cached_data = recent_issues_cache.get()
     if cached_data:
+        # Check if cached data is already serialized (list of dicts)
+        # If we return it directly, FastAPI will re-validate it against the response_model
         return cached_data
 
     # Fetch last 10 issues
     issues = db.query(Issue).order_by(Issue.created_at.desc()).limit(10).all()
-    # Sanitize data (no emails)
-    data = [
-        {
-            "id": i.id,
-            "category": i.category,
-            "description": i.description[:100] + "..." if len(i.description) > 100 else i.description,
-            "created_at": i.created_at,
-            "image_path": i.image_path,
-            "status": i.status,
-            "upvotes": i.upvotes if i.upvotes is not None else 0,
-            "location": i.location,
-            "latitude": i.latitude,
-            "longitude": i.longitude,
-            "action_plan": i.action_plan
-        }
-        for i in issues
-    ]
+
+    # Process issues to handle action_plan deserialization if needed
+    # Since action_plan is Text in DB, we should keep it that way for IssueResponse or parse it.
+    # The frontend expects it. IssueResponse defines action_plan as Optional[Any].
+
+    # Convert to Pydantic models for validation and serialization
+    data = []
+    for i in issues:
+        # Handle action_plan JSON string
+        action_plan_val = i.action_plan
+        if isinstance(action_plan_val, str) and action_plan_val:
+            try:
+                action_plan_val = json.loads(action_plan_val)
+            except json.JSONDecodeError:
+                pass # Keep as string if not valid JSON
+
+        data.append(IssueResponse(
+            id=i.id,
+            category=i.category,
+            description=i.description[:100] + "..." if len(i.description) > 100 else i.description,
+            created_at=i.created_at,
+            image_path=i.image_path,
+            status=i.status,
+            upvotes=i.upvotes if i.upvotes is not None else 0,
+            location=i.location,
+            latitude=i.latitude,
+            longitude=i.longitude,
+            action_plan=action_plan_val
+        ).model_dump()) # Store as dict in cache
 
     recent_issues_cache.set(data)
 

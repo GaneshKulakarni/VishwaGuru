@@ -85,12 +85,20 @@ async def generate_action_plan(issue_description: str, category: str, image_path
         text_response = response.text.strip()
 
         # Cleanup if markdown code blocks are returned
-        if text_response.startswith("```json"):
-            text_response = text_response[7:-3]
-        elif text_response.startswith("```"):
-            text_response = text_response[3:-3]
+        if "```json" in text_response:
+             text_response = text_response.split("```json")[1].split("```")[0]
+        elif "```" in text_response:
+             text_response = text_response.split("```")[1].split("```")[0]
 
-        plan = json.loads(text_response)
+        text_response = text_response.strip()
+
+        try:
+            plan = json.loads(text_response)
+        except json.JSONDecodeError:
+            # Try to fix common JSON errors if possible, or fallback
+            print(f"Gemini returned invalid JSON: {text_response}")
+            raise Exception("Invalid JSON from AI")
+
         if "x_post" not in plan or not plan.get("x_post"):
             plan["x_post"] = x_post
         return plan
