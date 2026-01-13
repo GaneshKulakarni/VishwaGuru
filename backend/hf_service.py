@@ -85,6 +85,58 @@ async def detect_vandalism_clip(image: Union[Image.Image, bytes], client: httpx.
         print(f"HF Detection Error: {e}")
         return []
 
+async def detect_tree_hazard_clip(image: Union[Image.Image, bytes], client: httpx.AsyncClient = None):
+    try:
+        labels = ["fallen tree", "dangling branch", "leaning tree", "overgrown vegetation", "healthy tree", "normal street"]
+
+        img_bytes = _prepare_image_bytes(image)
+
+        results = await query_hf_api(img_bytes, labels, client=client)
+
+        if not isinstance(results, list):
+             return []
+
+        tree_labels = ["fallen tree", "dangling branch", "leaning tree", "overgrown vegetation"]
+        detected = []
+
+        for res in results:
+            if isinstance(res, dict) and res.get('label') in tree_labels and res.get('score', 0) > 0.4:
+                 detected.append({
+                     "label": res['label'],
+                     "confidence": res['score'],
+                     "box": []
+                 })
+        return detected
+    except Exception as e:
+        print(f"HF Detection Error: {e}")
+        return []
+
+async def detect_pest_clip(image: Union[Image.Image, bytes], client: httpx.AsyncClient = None):
+    try:
+        labels = ["rat", "mouse", "cockroach", "pest infestation", "garbage", "clean room", "street"]
+
+        img_bytes = _prepare_image_bytes(image)
+
+        results = await query_hf_api(img_bytes, labels, client=client)
+
+        if not isinstance(results, list):
+             return []
+
+        pest_labels = ["rat", "mouse", "cockroach", "pest infestation"]
+        detected = []
+
+        for res in results:
+            if isinstance(res, dict) and res.get('label') in pest_labels and res.get('score', 0) > 0.4:
+                 detected.append({
+                     "label": res['label'],
+                     "confidence": res['score'],
+                     "box": []
+                 })
+        return detected
+    except Exception as e:
+        print(f"HF Detection Error: {e}")
+        return []
+
 async def detect_infrastructure_clip(image: Union[Image.Image, bytes], client: httpx.AsyncClient = None):
     try:
         labels = ["broken streetlight", "damaged traffic sign", "fallen tree", "damaged fence", "pothole", "clean street", "normal infrastructure"]

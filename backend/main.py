@@ -33,7 +33,9 @@ from hf_service import (
     detect_street_light_clip,
     detect_fire_clip,
     detect_stray_animal_clip,
-    detect_blocked_road_clip
+    detect_blocked_road_clip,
+    detect_tree_hazard_clip,
+    detect_pest_clip
 )
 from PIL import Image
 from init_db import migrate_db
@@ -484,6 +486,40 @@ async def detect_blocked_road_endpoint(request: Request, image: UploadFile = Fil
         return {"detections": detections}
     except Exception as e:
         logger.error(f"Blocked road detection error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@app.post("/api/detect-tree-hazard")
+async def detect_tree_hazard_endpoint(request: Request, image: UploadFile = File(...)):
+    try:
+        image_bytes = await image.read()
+    except Exception as e:
+        logger.error(f"Invalid image file: {e}", exc_info=True)
+        raise HTTPException(status_code=400, detail="Invalid image file")
+
+    try:
+        client = request.app.state.http_client
+        detections = await detect_tree_hazard_clip(image_bytes, client=client)
+        return {"detections": detections}
+    except Exception as e:
+        logger.error(f"Tree hazard detection error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@app.post("/api/detect-pest")
+async def detect_pest_endpoint(request: Request, image: UploadFile = File(...)):
+    try:
+        image_bytes = await image.read()
+    except Exception as e:
+        logger.error(f"Invalid image file: {e}", exc_info=True)
+        raise HTTPException(status_code=400, detail="Invalid image file")
+
+    try:
+        client = request.app.state.http_client
+        detections = await detect_pest_clip(image_bytes, client=client)
+        return {"detections": detections}
+    except Exception as e:
+        logger.error(f"Pest detection error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
