@@ -38,7 +38,8 @@ from hf_service import (
     detect_blocked_road_clip,
     detect_tree_hazard_clip,
     detect_pest_clip,
-    detect_severity_clip
+    detect_severity_clip,
+    generate_image_caption
 )
 from PIL import Image
 from init_db import migrate_db
@@ -553,6 +554,25 @@ async def detect_severity_endpoint(request: Request, image: UploadFile = File(..
         return result
     except Exception as e:
         logger.error(f"Severity detection error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@app.post("/api/generate-description")
+async def generate_description_endpoint(request: Request, image: UploadFile = File(...)):
+    try:
+        image_bytes = await image.read()
+    except Exception as e:
+        logger.error(f"Invalid image file: {e}", exc_info=True)
+        raise HTTPException(status_code=400, detail="Invalid image file")
+
+    try:
+        client = request.app.state.http_client
+        description = await generate_image_caption(image_bytes, client=client)
+        if not description:
+            return {"description": "", "error": "Could not generate description"}
+        return {"description": description}
+    except Exception as e:
+        logger.error(f"Description generation error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error")
 
 

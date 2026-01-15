@@ -17,6 +17,32 @@ const ReportForm = ({ setView, setLoading, setError, setActionPlan, loading }) =
   const [gettingLocation, setGettingLocation] = useState(false);
   const [severity, setSeverity] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [describing, setDescribing] = useState(false);
+
+  const autoDescribe = async () => {
+      if (!formData.image) return;
+      setDescribing(true);
+
+      const uploadData = new FormData();
+      uploadData.append('image', formData.image);
+
+      try {
+          const response = await fetch(`${API_URL}/api/generate-description`, {
+              method: 'POST',
+              body: uploadData
+          });
+          if (response.ok) {
+              const data = await response.json();
+              if (data.description) {
+                  setFormData(prev => ({...prev, description: data.description}));
+              }
+          }
+      } catch (e) {
+          console.error("Auto description failed", e);
+      } finally {
+          setDescribing(false);
+      }
+  };
 
   const analyzeImage = async (file) => {
     if (!file) return;
@@ -148,6 +174,16 @@ const ReportForm = ({ setView, setLoading, setError, setActionPlan, loading }) =
               onChange={(e) => setFormData({...formData, description: e.target.value})}
               placeholder="Describe the issue..."
             />
+            {formData.image && (
+                <button
+                    type="button"
+                    onClick={autoDescribe}
+                    disabled={describing}
+                    className="mt-2 text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded hover:bg-purple-200 transition flex items-center gap-1 font-medium"
+                >
+                    {describing ? 'Generating description...' : '✨ Auto-fill description from image'}
+                </button>
+            )}
           </div>
 
           <div>

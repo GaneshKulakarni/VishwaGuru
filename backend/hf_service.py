@@ -5,6 +5,7 @@ from PIL import Image
 import asyncio
 from typing import Union
 import logging
+import base64
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -13,6 +14,7 @@ logger = logging.getLogger(__name__)
 token = os.environ.get("HF_TOKEN")
 headers = {"Authorization": f"Bearer {token}"} if token else {}
 API_URL = "https://api-inference.huggingface.co/models/openai/clip-vit-base-patch32"
+CAPTION_API_URL = "https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-large"
 
 async def query_hf_api(image_bytes, labels, client=None):
     """
@@ -25,7 +27,6 @@ async def query_hf_api(image_bytes, labels, client=None):
         return await _make_request(new_client, image_bytes, labels)
 
 async def _make_request(client, image_bytes, labels):
-    import base64
     image_base64 = base64.b64encode(image_bytes).decode('utf-8')
 
     payload = {
@@ -58,6 +59,40 @@ def _prepare_image_bytes(image: Union[Image.Image, bytes]) -> bytes:
     fmt = image.format if image.format else 'JPEG'
     image.save(img_byte_arr, format=fmt)
     return img_byte_arr.getvalue()
+
+async def generate_image_caption(image: Union[Image.Image, bytes], client: httpx.AsyncClient = None):
+    """
+    Generates a description for the image using Salesforce BLIP model.
+    """
+    try:
+        img_bytes = _prepare_image_bytes(image)
+        image_base64 = base64.b64encode(img_bytes).decode('utf-8')
+
+        payload = {
+            "inputs": image_base64
+        }
+
+        async def _make_caption_request(c):
+             response = await c.post(CAPTION_API_URL, headers=headers, json=payload, timeout=20.0)
+             if response.status_code != 200:
+                 logger.error(f"HF Caption API Error: {response.status_code} - {response.text}")
+                 return None
+             return response.json()
+
+        if client:
+            result = await _make_caption_request(client)
+        else:
+            async with httpx.AsyncClient() as new_client:
+                result = await _make_caption_request(new_client)
+
+        # Result format for image-to-text is usually [{"generated_text": "a dog ..."}]
+        if isinstance(result, list) and len(result) > 0 and 'generated_text' in result[0]:
+            return result[0]['generated_text']
+        return None
+
+    except Exception as e:
+        logger.error(f"HF Caption Generation Error: {e}")
+        return None
 
 async def detect_vandalism_clip(image: Union[Image.Image, bytes], client: httpx.AsyncClient = None):
     """
