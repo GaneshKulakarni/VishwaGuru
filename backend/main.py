@@ -19,28 +19,6 @@ import asyncio
 import logging
 import time
 import magic
-import httpx
-
-from backend.database import engine, Base, SessionLocal, get_db
-from backend.init_db import migrate_db
-from backend.models import Issue
-from backend.schemas import IssueResponse, ChatRequest, IssueCreateResponse, ActionPlan
-from backend.ai_service import generate_action_plan, chat_with_civic_assistant
-from backend.ai_factory import create_all_ai_services
-from backend.ai_interfaces import initialize_ai_services, get_ai_services
-from backend.maharashtra_locator import load_maharashtra_pincode_data, load_maharashtra_mla_data, find_constituency_by_pincode, find_mla_by_constituency
-from backend.bot import run_bot
-from backend.pothole_detection import detect_potholes
-from backend.infrastructure_detection import detect_infrastructure_local
-from backend.flooding_detection import detect_flooding_local
-from backend.vandalism_detection import detect_vandalism_local
-from backend.garbage_detection import detect_garbage
-from backend.unified_detection_service import get_detection_status
-from backend.hf_service import (
-    detect_illegal_parking_clip, detect_street_light_clip, detect_fire_clip,
-    detect_stray_animal_clip, detect_blocked_road_clip, detect_tree_hazard_clip,
-    detect_pest_clip, detect_severity_clip, detect_smart_scan_clip, generate_image_caption
-)
 
 # Configure structured logging
 logging.basicConfig(
@@ -100,69 +78,6 @@ def validate_uploaded_file(file: UploadFile) -> None:
             status_code=400,
             detail="Unable to validate file content. Please ensure it's a valid image file."
         )
-
-def validate_image_for_processing(image: Image.Image, max_width: int = 4096, max_height: int = 4096) -> None:
-    """
-    Validate PIL Image object for processing safety.
-    
-    Args:
-        image: PIL Image object to validate
-        max_width: Maximum allowed width in pixels
-        max_height: Maximum allowed height in pixels
-        
-    Raises:
-        HTTPException: If image validation fails
-    """
-    try:
-        # Verify image integrity (checks for corruption)
-        image.verify()
-        
-        # Re-open image after verify() closes it
-        image.seek(0)
-        if hasattr(image, 'load'):
-            image.load()
-            
-    except Exception as e:
-        logger.error(f"Image verification failed: {e}")
-        raise HTTPException(
-            status_code=400,
-            detail="Image file appears to be corrupted or invalid. Please upload a valid image."
-        )
-    
-    # Check image dimensions
-    width, height = image.size
-    if width > max_width or height > max_height:
-        raise HTTPException(
-            status_code=413,
-            detail=f"Image dimensions too large. Maximum allowed: {max_width}x{max_height} pixels. Uploaded: {width}x{height} pixels."
-        )
-    
-    # Check for extremely small images that might cause issues
-    if width < 10 or height < 10:
-        raise HTTPException(
-            status_code=400,
-            detail="Image dimensions too small. Minimum allowed: 10x10 pixels."
-        )
-    
-    # Check image mode (ensure it's RGB or compatible)
-    if image.mode not in ['RGB', 'RGBA', 'L', 'P']:
-        try:
-            # Convert to RGB if possible
-            if image.mode in ['RGBA', 'LA', 'P']:
-                image.convert('RGB')
-            elif image.mode == 'L':
-                pass  # Grayscale is acceptable
-            else:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Unsupported image mode: {image.mode}. Please upload RGB, RGBA, or grayscale images."
-                )
-        except Exception as e:
-            logger.error(f"Image mode conversion failed: {e}")
-            raise HTTPException(
-                status_code=400,
-                detail="Unable to process image format. Please try a different image."
-            )
 
 # Simple in-memory cache
 RECENT_ISSUES_CACHE = {
