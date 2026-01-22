@@ -1,5 +1,8 @@
 from sqlalchemy import text
-from database import engine
+from backend.database import engine
+import logging
+
+logger = logging.getLogger(__name__)
 
 def migrate_db():
     """
@@ -13,7 +16,7 @@ def migrate_db():
                 # SQLite doesn't support IF NOT EXISTS in ALTER TABLE
                 # So we just try to add it and ignore error if it exists
                 conn.execute(text("ALTER TABLE issues ADD COLUMN upvotes INTEGER DEFAULT 0"))
-                print("Migrated database: Added upvotes column.")
+                logger.info("Migrated database: Added upvotes column.")
             except Exception:
                 # Column likely already exists
                 pass
@@ -21,7 +24,7 @@ def migrate_db():
             # Check if index exists or create it
             try:
                 conn.execute(text("CREATE INDEX ix_issues_upvotes ON issues (upvotes)"))
-                print("Migrated database: Added index on upvotes column.")
+                logger.info("Migrated database: Added index on upvotes column.")
             except Exception:
                 # Index likely already exists
                 pass
@@ -29,7 +32,7 @@ def migrate_db():
             # Add index on created_at for faster sorting
             try:
                 conn.execute(text("CREATE INDEX ix_issues_created_at ON issues (created_at)"))
-                print("Migrated database: Added index on created_at column.")
+                logger.info("Migrated database: Added index on created_at column.")
             except Exception:
                 # Index likely already exists
                 pass
@@ -37,7 +40,7 @@ def migrate_db():
             # Add index on status for faster filtering
             try:
                 conn.execute(text("CREATE INDEX ix_issues_status ON issues (status)"))
-                print("Migrated database: Added index on status column.")
+                logger.info("Migrated database: Added index on status column.")
             except Exception:
                 # Index likely already exists
                 pass
@@ -71,6 +74,6 @@ def migrate_db():
                 pass
 
             conn.commit()
-            print("Database migration check completed.")
+            logger.info("Database migration check completed.")
     except Exception as e:
-        print(f"Database migration error: {e}")
+        logger.error(f"Database migration error: {e}")
