@@ -76,15 +76,9 @@ ALLOWED_MIME_TYPES = {
     'image/tiff'
 }
 
-def validate_uploaded_file(file: UploadFile) -> None:
+def _validate_uploaded_file_sync(file: UploadFile) -> None:
     """
-    Validate uploaded file for security and safety.
-    
-    Args:
-        file: The uploaded file to validate
-        
-    Raises:
-        HTTPException: If validation fails
+    Synchronous validation logic to be run in a threadpool.
     """
     # Check file size
     file.file.seek(0, 2)  # Seek to end
@@ -116,6 +110,18 @@ def validate_uploaded_file(file: UploadFile) -> None:
             status_code=400,
             detail="Unable to validate file content. Please ensure it's a valid image file."
         )
+
+async def validate_uploaded_file(file: UploadFile) -> None:
+    """
+    Validate uploaded file for security and safety (async wrapper).
+
+    Args:
+        file: The uploaded file to validate
+
+    Raises:
+        HTTPException: If validation fails
+    """
+    await run_in_threadpool(_validate_uploaded_file_sync, file)
 
 # Create tables if they don't exist
 Base.metadata.create_all(bind=engine)
@@ -309,7 +315,7 @@ async def create_issue(
     try:
         # Validate uploaded image if provided
         if image:
-            validate_uploaded_file(image)
+            await validate_uploaded_file(image)
         
         # Save image if provided
         if image:
@@ -496,13 +502,13 @@ def get_recent_issues(db: Session = Depends(get_db)):
 @app.post("/api/detect-pothole")
 async def detect_pothole_endpoint(image: UploadFile = File(...)):
     # Validate uploaded file
-    validate_uploaded_file(image)
+    await validate_uploaded_file(image)
     
     # Convert to PIL Image directly from file object to save memory
     try:
         pil_image = await run_in_threadpool(Image.open, image.file)
         # Validate image for processing
-        validate_image_for_processing(pil_image)
+        await run_in_threadpool(validate_image_for_processing, pil_image)
     except HTTPException:
         raise  # Re-raise HTTP exceptions from validation
     except Exception as e:
@@ -520,13 +526,13 @@ async def detect_pothole_endpoint(image: UploadFile = File(...)):
 @app.post("/api/detect-infrastructure")
 async def detect_infrastructure_endpoint(request: Request, image: UploadFile = File(...)):
     # Validate uploaded file
-    validate_uploaded_file(image)
+    await validate_uploaded_file(image)
     
     # Convert to PIL Image directly from file object to save memory
     try:
         pil_image = await run_in_threadpool(Image.open, image.file)
         # Validate image for processing
-        validate_image_for_processing(pil_image)
+        await run_in_threadpool(validate_image_for_processing, pil_image)
     except HTTPException:
         raise  # Re-raise HTTP exceptions from validation
     except Exception as e:
@@ -546,13 +552,13 @@ async def detect_infrastructure_endpoint(request: Request, image: UploadFile = F
 @app.post("/api/detect-flooding")
 async def detect_flooding_endpoint(request: Request, image: UploadFile = File(...)):
     # Validate uploaded file
-    validate_uploaded_file(image)
+    await validate_uploaded_file(image)
     
     # Convert to PIL Image directly from file object to save memory
     try:
         pil_image = await run_in_threadpool(Image.open, image.file)
         # Validate image for processing
-        validate_image_for_processing(pil_image)
+        await run_in_threadpool(validate_image_for_processing, pil_image)
     except HTTPException:
         raise  # Re-raise HTTP exceptions from validation
     except Exception as e:
@@ -572,13 +578,13 @@ async def detect_flooding_endpoint(request: Request, image: UploadFile = File(..
 @app.post("/api/detect-vandalism")
 async def detect_vandalism_endpoint(request: Request, image: UploadFile = File(...)):
     # Validate uploaded file
-    validate_uploaded_file(image)
+    await validate_uploaded_file(image)
     
     # Convert to PIL Image directly from file object to save memory
     try:
         pil_image = await run_in_threadpool(Image.open, image.file)
         # Validate image for processing
-        validate_image_for_processing(pil_image)
+        await run_in_threadpool(validate_image_for_processing, pil_image)
     except HTTPException:
         raise  # Re-raise HTTP exceptions from validation
     except Exception as e:
@@ -598,13 +604,13 @@ async def detect_vandalism_endpoint(request: Request, image: UploadFile = File(.
 @app.post("/api/detect-garbage")
 async def detect_garbage_endpoint(image: UploadFile = File(...)):
     # Validate uploaded file
-    validate_uploaded_file(image)
+    await validate_uploaded_file(image)
     
     # Convert to PIL Image directly from file object to save memory
     try:
         pil_image = await run_in_threadpool(Image.open, image.file)
         # Validate image for processing
-        validate_image_for_processing(pil_image)
+        await run_in_threadpool(validate_image_for_processing, pil_image)
     except HTTPException:
         raise  # Re-raise HTTP exceptions from validation
     except Exception as e:
