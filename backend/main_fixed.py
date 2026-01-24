@@ -31,7 +31,7 @@ from backend.schemas import (
     ErrorResponse, SuccessResponse, IssueCategory, IssueStatus
 )
 from backend.exceptions import EXCEPTION_HANDLERS
-from backend.bot import run_bot, start_bot_thread, stop_bot_thread
+from backend.bot import run_bot
 from backend.ai_factory import create_all_ai_services
 from backend.ai_service import generate_action_plan, chat_with_civic_assistant
 from backend.maharashtra_locator import (
@@ -215,10 +215,6 @@ for exception_type, handler in EXCEPTION_HANDLERS.items():
     app.add_exception_handler(exception_type, handler)
 
 # CORS Configuration - Security Enhanced
-# For separate frontend/backend deployment (e.g., Netlify + Render)
-# FRONTEND_URL environment variable is REQUIRED for security
-# Example: https://your-app.netlify.app
-
 frontend_url = os.environ.get("FRONTEND_URL")
 if not frontend_url:
     raise ValueError(
@@ -375,7 +371,6 @@ async def create_issue(
         current_cache = recent_issues_cache.get()
         if current_cache:
             # Create a dict representation of the new issue (similar to IssueResponse)
-            # We use the new_issue object which has been refreshed from DB
             new_issue_dict = IssueResponse(
                 id=new_issue.id,
                 category=new_issue.category,
@@ -430,10 +425,7 @@ def upvote_issue(issue_id: int, db: Session = Depends(get_db)):
 
 @lru_cache(maxsize=1)
 def _load_responsibility_map():
-    # Assuming the data folder is at the root level relative to where backend is run
-    # Adjust path as necessary. If running from root, it is "data/responsibility_map.json"
     file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "responsibility_map.json")
-
     with open(file_path, "r") as f:
         return json.load(f)
 
@@ -477,17 +469,10 @@ async def chat_endpoint(request: ChatRequest):
 def get_recent_issues(db: Session = Depends(get_db)):
     cached_data = recent_issues_cache.get()
     if cached_data:
-        # Check if cached data is already serialized (list of dicts)
-        # We return JSONResponse directly to bypass FastAPI's Pydantic validation/serialization
-        # which is redundant for cached data that was already validated when stored.
         return JSONResponse(content=cached_data)
 
     # Fetch last 10 issues
     issues = db.query(Issue).order_by(Issue.created_at.desc()).limit(10).all()
-
-    # Process issues to handle action_plan deserialization if needed
-    # Since action_plan is Text in DB, we should keep it that way for IssueResponse or parse it.
-    # The frontend expects it. IssueResponse defines action_plan as Optional[Any].
 
     # Convert to Pydantic models for validation and serialization
     data = []
@@ -504,12 +489,12 @@ def get_recent_issues(db: Session = Depends(get_db)):
             latitude=i.latitude,
             longitude=i.longitude,
             action_plan=i.action_plan
-        ).model_dump(mode='json')) # Store as JSON-compatible dict in cache
+        ).model_dump(mode='json'))
 
     recent_issues_cache.set(data)
-
     return data
 
+# FIXED: Standardized Detection Endpoints with Consistent Validation
 @app.post("/api/detect-pothole", response_model=DetectionResponse)
 async def detect_pothole_endpoint(image: UploadFile = File(...)):
     # Validate uploaded file
@@ -560,6 +545,7 @@ async def detect_infrastructure_endpoint(request: Request, image: UploadFile = F
         logger.error(f"Infrastructure detection error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Infrastructure detection service temporarily unavailable")
 
+# FIXED: Single flooding detection endpoint with proper async validation
 @app.post("/api/detect-flooding", response_model=DetectionResponse)
 async def detect_flooding_endpoint(request: Request, image: UploadFile = File(...)):
     # Validate uploaded file
@@ -586,7 +572,6 @@ async def detect_flooding_endpoint(request: Request, image: UploadFile = File(..
         logger.error(f"Flooding detection error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Flooding detection service temporarily unavailable")
 
-# FIXED: Standardized Detection Endpoints with Consistent Validation
 @app.post("/api/detect-vandalism", response_model=DetectionResponse)
 async def detect_vandalism_endpoint(request: Request, image: UploadFile = File(...)):
     # Validate uploaded file
@@ -637,6 +622,7 @@ async def detect_garbage_endpoint(image: UploadFile = File(...)):
         logger.error(f"Garbage detection error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Detection service temporarily unavailable")
 
+# External API Detection Endpoints (HuggingFace CLIP-based)
 @app.post("/api/detect-illegal-parking")
 async def detect_illegal_parking_endpoint(request: Request, image: UploadFile = File(...)):
     try:
@@ -717,7 +703,6 @@ async def detect_blocked_road_endpoint(request: Request, image: UploadFile = Fil
         logger.error(f"Blocked road detection error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error")
 
-
 @app.post("/api/detect-tree-hazard")
 async def detect_tree_hazard_endpoint(request: Request, image: UploadFile = File(...)):
     try:
@@ -733,7 +718,6 @@ async def detect_tree_hazard_endpoint(request: Request, image: UploadFile = File
     except Exception as e:
         logger.error(f"Tree hazard detection error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error")
-
 
 @app.post("/api/detect-pest")
 async def detect_pest_endpoint(request: Request, image: UploadFile = File(...)):
@@ -751,7 +735,6 @@ async def detect_pest_endpoint(request: Request, image: UploadFile = File(...)):
         logger.error(f"Pest detection error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error")
 
-
 @app.post("/api/detect-severity")
 async def detect_severity_endpoint(request: Request, image: UploadFile = File(...)):
     try:
@@ -768,7 +751,6 @@ async def detect_severity_endpoint(request: Request, image: UploadFile = File(..
         logger.error(f"Severity detection error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error")
 
-
 @app.post("/api/detect-smart-scan")
 async def detect_smart_scan_endpoint(request: Request, image: UploadFile = File(...)):
     try:
@@ -784,7 +766,6 @@ async def detect_smart_scan_endpoint(request: Request, image: UploadFile = File(
     except Exception as e:
         logger.error(f"Smart scan detection error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error")
-
 
 @app.post("/api/generate-description")
 async def generate_description_endpoint(request: Request, image: UploadFile = File(...)):
@@ -804,17 +785,10 @@ async def generate_description_endpoint(request: Request, image: UploadFile = Fi
         logger.error(f"Description generation error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error")
 
-
 @app.get("/api/mh/rep-contacts")
 async def get_maharashtra_rep_contacts(pincode: str = Query(..., min_length=6, max_length=6)):
     """
     Get MLA and representative contact information for Maharashtra by pincode.
-    
-    Args:
-        pincode: 6-digit pincode for Maharashtra
-        
-    Returns:
-        JSON with MLA details, constituency info, and grievance portal links
     """
     # Validate pincode format
     if not pincode.isdigit():
@@ -833,7 +807,6 @@ async def get_maharashtra_rep_contacts(pincode: str = Query(..., min_length=6, m
         )
     
     # Find MLA by constituency
-    # If constituency_info exists but assembly_constituency is None, it means we only found District info via fallback
     assembly_constituency = constituency_info.get("assembly_constituency")
     mla_info = None
 
