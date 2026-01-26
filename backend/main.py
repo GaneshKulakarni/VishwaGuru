@@ -56,7 +56,7 @@ from backend.local_ml_service import (
     get_detection_status
 )
 from backend.gemini_services import get_ai_services, initialize_ai_services
-from backend.spatial_utils import find_nearby_issues
+from backend.spatial_utils import find_nearby_issues, get_bounding_box
 from backend.hf_api_service import (
     detect_illegal_parking_clip,
     detect_street_light_clip,
@@ -459,11 +459,16 @@ async def create_issue(
     if latitude is not None and longitude is not None:
         try:
             # Find existing open issues within 50 meters
+            # Optimization: Use bounding box to filter candidates in SQL
+            min_lat, max_lat, min_lon, max_lon = get_bounding_box(latitude, longitude, 50.0)
+
             open_issues = await run_in_threadpool(
                 lambda: db.query(Issue).filter(
                     Issue.status == "open",
-                    Issue.latitude.isnot(None),
-                    Issue.longitude.isnot(None)
+                    Issue.latitude >= min_lat,
+                    Issue.latitude <= max_lat,
+                    Issue.longitude >= min_lon,
+                    Issue.longitude <= max_lon
                 ).all()
             )
 
@@ -637,10 +642,15 @@ def get_nearby_issues(
     """
     try:
         # Query open issues with coordinates
+        # Optimization: Use bounding box to filter candidates in SQL
+        min_lat, max_lat, min_lon, max_lon = get_bounding_box(latitude, longitude, radius)
+
         open_issues = db.query(Issue).filter(
             Issue.status == "open",
-            Issue.latitude.isnot(None),
-            Issue.longitude.isnot(None)
+            Issue.latitude >= min_lat,
+            Issue.latitude <= max_lat,
+            Issue.longitude >= min_lon,
+            Issue.longitude <= max_lon
         ).all()
 
         nearby_issues_with_distance = find_nearby_issues(

@@ -10,6 +10,32 @@ import numpy as np
 from backend.models import Issue
 
 
+def get_bounding_box(lat: float, lon: float, radius_meters: float) -> Tuple[float, float, float, float]:
+    """
+    Calculate the bounding box coordinates for a given radius.
+    Returns (min_lat, max_lat, min_lon, max_lon).
+    """
+    # Earth's radius in meters
+    R = 6378137.0
+
+    # Coordinate offsets in radians
+    # Prevent division by zero at poles
+    effective_lat = max(min(lat, 89.9), -89.9)
+    dlat = radius_meters / R
+    dlon = radius_meters / (R * math.cos(math.pi * effective_lat / 180.0))
+
+    # Offset positions in decimal degrees
+    lat_offset = dlat * 180.0 / math.pi
+    lon_offset = dlon * 180.0 / math.pi
+
+    min_lat = lat - lat_offset
+    max_lat = lat + lat_offset
+    min_lon = lon - lon_offset
+    max_lon = lon + lon_offset
+
+    return min_lat, max_lat, min_lon, max_lon
+
+
 def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """
     Calculate the great circle distance between two points
