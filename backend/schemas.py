@@ -103,9 +103,6 @@ class PushSubscriptionResponse(BaseModel):
     id: int = Field(..., description="Subscription ID")
     message: str = Field(..., description="Subscription confirmation")
 
-class DetectionRequest(BaseModel):
-    detections: List[Dict[str, Any]] = Field(..., description="List of detected objects/items")
-
 class DetectionResponse(BaseModel):
     detections: List[Dict[str, Any]] = Field(..., description="List of detected objects/items")
 
