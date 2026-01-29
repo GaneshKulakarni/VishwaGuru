@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertTriangle, Camera, CheckCircle, Info, RefreshCcw } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Info, RefreshCcw } from 'lucide-react';
 import { detectorsApi } from './api/detectors';
 
 const SeverityDetector = ({ onBack }) => {
