@@ -146,7 +146,7 @@ graph TD
 
 ```bash
 git clone https://github.com/Ewocs/VishwaGuru.git
-cd vishwaguru
+cd VishwaGuru
 ```
 
 ### 2. ⚙️ Backend Setup
@@ -375,7 +375,7 @@ Found a bug? Have a feature request?
 
 ```bash
 git clone https://github.com/Ewocs/VishwaGuru.git
-cd vishwaguru
+cd VishwaGuru
 ```
 
 ### 2. ⚙️ Backend Setup
