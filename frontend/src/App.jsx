@@ -5,6 +5,7 @@ import { fakeRecentIssues, fakeResponsibilityMap } from './fakeData';
 import { issuesApi, miscApi } from './api';
 
 // Lazy Load Views
+const Landing = React.lazy(() => import('./views/Landing'));
 const Home = React.lazy(() => import('./views/Home'));
 const MapView = React.lazy(() => import('./views/MapView'));
 const ReportForm = React.lazy(() => import('./views/ReportForm'));
@@ -40,7 +41,7 @@ const DETECTORS = {
 
 // Valid view paths for navigation safety
 const VALID_VIEWS = [
-  'home', 'map', 'report', 'action', 'mh-rep', 'stats', 
+  'home', 'map', 'report', 'action', 'mh-rep', 'stats',
   'leaderboard', 'grievance', ...Object.keys(DETECTORS), 'verify'
 ];
 
@@ -108,10 +109,10 @@ const ErrorAlert = ({ message, onRetry = null, variant = "error" }) => {
               className="mt-2 text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors duration-200 flex items-center gap-1 group"
             >
               <span>Try again</span>
-              <svg 
-                className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-200" 
-                fill="none" 
-                stroke="currentColor" 
+              <svg
+                className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-200"
+                fill="none"
+                stroke="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
@@ -144,9 +145,9 @@ const SuccessAlert = ({ message }) => (
 const NavigationBreadcrumb = () => {
   const location = useLocation();
   const paths = location.pathname.split('/').filter(Boolean);
-  
+
   if (paths.length === 0) return null;
-  
+
   return (
     <nav className="mb-6" aria-label="Breadcrumb">
       <ol className="flex items-center space-x-2 text-sm">
@@ -174,7 +175,7 @@ const NavigationBreadcrumb = () => {
 const DetectorWrapper = ({ children, onBack, title = null }) => {
   const location = useLocation();
   const detectorName = location.pathname.split('/').pop()?.replace('-', ' ') || 'Detector';
-  
+
   return (
     <div className="min-h-[70vh] flex flex-col">
       <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
@@ -182,10 +183,10 @@ const DetectorWrapper = ({ children, onBack, title = null }) => {
           onClick={onBack}
           className="group flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-all duration-300 hover:-translate-x-1"
         >
-          <svg 
-            className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform duration-300" 
-            fill="none" 
-            stroke="currentColor" 
+          <svg
+            className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform duration-300"
+            fill="none"
+            stroke="currentColor"
             viewBox="0 0 24 24"
           >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -197,7 +198,7 @@ const DetectorWrapper = ({ children, onBack, title = null }) => {
         </h2>
         <div className="w-24"></div> {/* Spacer for alignment */}
       </div>
-      
+
       <div className="flex-1 bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border border-gray-200 shadow-inner">
         {children}
       </div>
@@ -208,16 +209,16 @@ const DetectorWrapper = ({ children, onBack, title = null }) => {
 // Enhanced header component with animated gradient
 const AppHeader = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
-    
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  
+
   return (
     <header className={`sticky top-0 z-40 transition-all duration-500 ${isScrolled ? 'py-4 bg-white/95 backdrop-blur-lg shadow-lg' : 'py-8'}`}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -240,13 +241,13 @@ const AppHeader = () => {
 // Enhanced footer component
 const AppFooter = () => {
   const currentYear = new Date().getFullYear();
-  
+
   return (
     <footer className="mt-16 pt-8 pb-12 border-t border-gray-200 relative">
       <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
         <div className="h-12 w-32 bg-gradient-to-r from-orange-500/20 to-blue-500/20 blur-xl rounded-full"></div>
       </div>
-      
+
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <div className="inline-flex items-center justify-center space-x-4 mb-4">
@@ -254,15 +255,15 @@ const AppFooter = () => {
             <div className="h-8 w-8 bg-gradient-to-r from-blue-500 to-orange-500 rounded-full animate-pulse"></div>
             <div className="h-8 w-8 bg-gradient-to-r from-orange-500 to-blue-500 rounded-full"></div>
           </div>
-          
+
           <p className="text-gray-500 text-sm mb-3 tracking-wide">
             &copy; {currentYear} VishwaGuru Civic Platform. All rights reserved.
           </p>
           <p className="text-gray-400 text-xs max-w-lg mx-auto leading-relaxed">
-            Committed to transparent governance and community-driven solutions. 
+            Committed to transparent governance and community-driven solutions.
             Making cities smarter, one issue at a time.
           </p>
-          
+
           <div className="mt-6 flex items-center justify-center space-x-6 text-xs text-gray-400">
             <a href="/privacy" className="hover:text-blue-600 transition-colors duration-200">Privacy Policy</a>
             <span className="h-1 w-1 bg-gray-400 rounded-full"></span>
@@ -279,14 +280,14 @@ const AppFooter = () => {
 // Floating action button for quick actions - IMPROVED
 const FloatingActions = ({ setView }) => {
   const [isOpen, setIsOpen] = useState(false);
-  
+
   const quickActions = [
     { label: 'Report Issue', icon: '📝', view: 'report', bgColor: 'from-green-500 to-emerald-600' },
     { label: 'Quick Scan', icon: '📷', view: 'smart-scan', bgColor: 'from-blue-500 to-cyan-600' },
     { label: 'View Map', icon: '🗺️', view: 'map', bgColor: 'from-purple-500 to-indigo-600' },
     { label: 'Emergency', icon: '🚨', view: 'fire', bgColor: 'from-red-500 to-orange-600' },
   ];
-  
+
   return (
     <div className="fixed bottom-28 right-8 z-40 flex flex-col items-end space-y-3">
       {isOpen && (
@@ -310,27 +311,26 @@ const FloatingActions = ({ setView }) => {
           ))}
         </div>
       )}
-      
+
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`h-14 w-14 rounded-full shadow-2xl hover:shadow-3xl transform transition-all duration-300 flex items-center justify-center ${
-          isOpen 
-            ? 'bg-gradient-to-r from-gray-600 to-gray-800 rotate-45 scale-105' 
-            : 'bg-gradient-to-r from-orange-500 to-blue-600 hover:scale-105'
-        }`}
+        className={`h-14 w-14 rounded-full shadow-2xl hover:shadow-3xl transform transition-all duration-300 flex items-center justify-center ${isOpen
+          ? 'bg-gradient-to-r from-gray-600 to-gray-800 rotate-45 scale-105'
+          : 'bg-gradient-to-r from-orange-500 to-blue-600 hover:scale-105'
+          }`}
         aria-label={isOpen ? 'Close quick actions' : 'Open quick actions'}
       >
-        <svg 
-          className="w-6 h-6 text-white transform transition-transform duration-500" 
-          fill="none" 
-          stroke="currentColor" 
+        <svg
+          className="w-6 h-6 text-white transform transition-transform duration-500"
+          fill="none"
+          stroke="currentColor"
           viewBox="0 0 24 24"
         >
-          <path 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            strokeWidth={2} 
-            d={isOpen ? "M6 18L18 6M6 6l12 12" : "M12 4v16m8-8H4"} 
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d={isOpen ? "M6 18L18 6M6 6l12 12" : "M12 4v16m8-8H4"}
           />
         </svg>
       </button>
@@ -341,18 +341,17 @@ const FloatingActions = ({ setView }) => {
 // Enhanced ChatWidget wrapper
 const EnhancedChatWidget = () => {
   const [isHovered, setIsHovered] = useState(false);
-  
+
   return (
     <div className="fixed bottom-8 right-8 z-50">
-      <div 
+      <div
         className="relative"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Chat label that appears on hover */}
-        <div className={`absolute right-16 -top-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-3 py-1 rounded-lg shadow-lg transition-all duration-300 ${
-          isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'
-        }`}>
+        <div className={`absolute right-16 -top-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-3 py-1 rounded-lg shadow-lg transition-all duration-300 ${isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'
+          }`}>
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold">AI Assistant</span>
             <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
@@ -361,13 +360,12 @@ const EnhancedChatWidget = () => {
             <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-cyan-500 rotate-45"></div>
           </div>
         </div>
-        
-        <div className={`transform transition-all duration-300 ${
-          isHovered ? 'scale-110 rotate-3' : ''
-        }`}>
+
+        <div className={`transform transition-all duration-300 ${isHovered ? 'scale-110 rotate-3' : ''
+          }`}>
           <ChatWidget />
         </div>
-        
+
         {/* Online indicator */}
         <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
       </div>
@@ -378,7 +376,7 @@ const EnhancedChatWidget = () => {
 // Floating buttons manager component
 const FloatingButtonsManager = ({ setView }) => {
   const [showActions, setShowActions] = useState(false);
-  
+
   return (
     <>
       <EnhancedChatWidget />
@@ -413,10 +411,10 @@ function AppContent() {
   // Safe navigation helper with validation
   const navigateToView = useCallback((view) => {
     if (VALID_VIEWS.includes(view.split('/')[0])) {
-      navigate(view === 'home' ? '/' : `/${view}`);
+      navigate(`/${view}`);
     } else {
       console.warn(`Attempted to navigate to invalid view: ${view}`);
-      navigate('/');
+      navigate('/home');
     }
   }, [navigate]);
 
@@ -456,7 +454,7 @@ function AppContent() {
   const fetchResponsibilityMap = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const data = await miscApi.getResponsibilityMap();
       setResponsibilityMap(data);
@@ -483,6 +481,23 @@ function AppContent() {
     return Object.keys(DETECTORS).includes(currentPath);
   }, [location.pathname]);
 
+  // Check if we're on the landing page
+  const isLandingPage = location.pathname === '/';
+
+  // If on landing page, render it without the main layout
+  if (isLandingPage) {
+    return (
+      <Suspense fallback={
+        <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+          <LoadingSpinner size="xl" variant="primary" />
+        </div>
+      }>
+        <Landing />
+      </Suspense>
+    );
+  }
+
+  // Otherwise render the main app layout
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-100 text-gray-900 font-sans overflow-hidden">
       {/* Animated background elements */}
@@ -490,19 +505,19 @@ function AppContent() {
         <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-orange-300/10 rounded-full blur-3xl animate-pulse-slow"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-300/10 rounded-full blur-3xl animate-pulse-slow animation-delay-1000"></div>
       </div>
-      
+
       <FloatingButtonsManager setView={navigateToView} />
-      
+
       <div className="relative z-10">
         <AppHeader />
-        
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-32 md:pb-20">
           {/* Main Content Area */}
           <main className="w-full max-w-6xl mx-auto">
             {/* Glass morphism card effect */}
             <div className="relative">
               <div className="absolute -inset-1 bg-gradient-to-r from-orange-500/20 to-blue-500/20 rounded-3xl blur-xl opacity-70 animate-gradient-slow"></div>
-              
+
               <div className="relative bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/50 p-6 md:p-10 transition-all duration-500 hover:shadow-3xl">
                 {loading && (
                   <div className="my-20">
@@ -512,27 +527,27 @@ function AppContent() {
                     </p>
                   </div>
                 )}
-                
+
                 {error && (
-                  <ErrorAlert 
-                    message={error} 
+                  <ErrorAlert
+                    message={error}
                     onRetry={error.includes("responsibility map") ? fetchResponsibilityMap : null}
                     variant="error"
                   />
                 )}
-                
+
                 {success && (
                   <SuccessAlert message={success} />
                 )}
-                
+
                 {/* Show breadcrumb except on home page */}
-                {location.pathname !== '/' && <NavigationBreadcrumb />}
+                {location.pathname !== '/home' && <NavigationBreadcrumb />}
 
                 <Suspense fallback={
                   <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
                     <LoadingSpinner size="xl" variant="secondary" />
                     <p className="text-gray-600 font-medium animate-pulse">
-                      Loading {location.pathname === '/' ? 'Dashboard' : 'Content'}...
+                      Loading {location.pathname === '/home' ? 'Dashboard' : 'Content'}...
                     </p>
                     <div className="w-64 h-2 bg-gray-200 rounded-full overflow-hidden">
                       <div className="h-full bg-gradient-to-r from-orange-500 to-blue-500 rounded-full animate-loading-bar"></div>
@@ -541,7 +556,7 @@ function AppContent() {
                 }>
                   <Routes>
                     {/* Main Views */}
-                    <Route path="/" element={
+                    <Route path="/home" element={
                       <Home
                         setView={navigateToView}
                         fetchResponsibilityMap={fetchResponsibilityMap}
@@ -549,14 +564,14 @@ function AppContent() {
                         handleUpvote={handleUpvote}
                       />
                     } />
-                    
+
                     <Route path="/map" element={
                       <MapView
                         responsibilityMap={responsibilityMap}
                         setView={navigateToView}
                       />
                     } />
-                    
+
                     <Route path="/report" element={
                       <ReportForm
                         setView={navigateToView}
@@ -567,7 +582,7 @@ function AppContent() {
                         setSuccess={setSuccess}
                       />
                     } />
-                    
+
                     <Route path="/action" element={
                       <ActionView
                         actionPlan={actionPlan}
@@ -576,7 +591,7 @@ function AppContent() {
                         setSuccess={setSuccess}
                       />
                     } />
-                    
+
                     <Route path="/mh-rep" element={
                       <MaharashtraRepView
                         setView={navigateToView}
@@ -588,24 +603,24 @@ function AppContent() {
                         setSuccess={setSuccess}
                       />
                     } />
-                    
+
                     <Route path="/stats" element={<StatsView setView={navigateToView} />} />
                     <Route path="/leaderboard" element={<LeaderboardView setView={navigateToView} />} />
                     <Route path="/grievance" element={<GrievanceView setView={navigateToView} />} />
-                    
+
                     {/* Detector Routes */}
                     {Object.entries(DETECTORS).map(([path, Component]) => (
-                      <Route 
-                        key={path} 
-                        path={`/${path}`} 
+                      <Route
+                        key={path}
+                        path={`/${path}`}
                         element={
-                          <DetectorWrapper onBack={() => navigate('/')} title={path.replace('-', ' ')}>
+                          <DetectorWrapper onBack={() => navigate('/home')} title={path.replace('-', ' ')}>
                             <Component />
                           </DetectorWrapper>
-                        } 
+                        }
                       />
                     ))}
-                    
+
                     {/* Dynamic Routes */}
                     <Route path="/verify/:id" element={<VerifyView />} />
                     <Route path="*" element={<NotFound />} />
@@ -614,7 +629,7 @@ function AppContent() {
               </div>
             </div>
           </main>
-          
+
           <AppFooter />
         </div>
       </div>
