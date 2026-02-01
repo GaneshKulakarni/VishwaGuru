@@ -61,7 +61,24 @@ const Landing = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC]">
+        <div className="min-h-screen relative overflow-hidden font-sans bg-white selection:bg-blue-200">
+            {/* Professional Thick Gradient Background - Stripe/Vercel Style */}
+
+            {/* Top Left - Bold Blue Gradient */}
+            <div className="absolute top-[-20%] left-[-20%] w-[70%] h-[90%] rounded-full bg-gradient-to-br from-blue-500/80 via-blue-400/70 to-blue-300/60 blur-[100px] -z-10" />
+
+            {/* Top Right - Bold Purple/Pink Gradient */}
+            <div className="absolute top-[-15%] right-[-20%] w-[65%] h-[85%] rounded-full bg-gradient-to-bl from-purple-500/80 via-pink-500/70 to-rose-400/60 blur-[100px] -z-10" />
+
+            {/* Bottom Left - Bold Orange Gradient */}
+            <div className="absolute bottom-[-15%] left-[-15%] w-[60%] h-[70%] rounded-full bg-gradient-to-tr from-orange-500/75 via-amber-400/65 to-yellow-300/55 blur-[90px] -z-10" />
+
+            {/* Bottom Right - Bold Indigo/Violet Gradient */}
+            <div className="absolute bottom-[-20%] right-[-15%] w-[55%] h-[75%] rounded-full bg-gradient-to-tl from-indigo-500/75 via-violet-500/65 to-purple-400/55 blur-[95px] -z-10" />
+
+
+
+
             {/* Header */}
             <motion.header
                 initial={{ y: -20, opacity: 0 }}
@@ -73,29 +90,32 @@ const Landing = () => {
                     <div className="flex items-center justify-between h-20">
                         {/* Logo */}
                         <div className="flex items-center gap-3 cursor-pointer group">
-                            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-full flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
-                                <span className="text-white font-bold text-lg">V</span>
+                            {/* Programmatic Logo - Magnifying Glass with Growth Chart */}
+                            <div className="w-10 h-10 relative flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    {/* Glass Circle - Perfectly Centered */}
+                                    <circle cx="50" cy="50" r="38" stroke="#2D60FF" strokeWidth="8" fill="white" />
+
+                                    {/* Handle */}
+                                    <path d="M77 77L92 92" stroke="#2D60FF" strokeWidth="10" strokeLinecap="round" />
+
+                                    {/* Centered Bar Chart - Scaled to fit safely inside */}
+                                    <path d="M32 62V52" stroke="#60A5FA" strokeWidth="6" strokeLinecap="round" />
+                                    <path d="M44 62V42" stroke="#2D60FF" strokeWidth="6" strokeLinecap="round" />
+                                    <path d="M56 62V33" stroke="#4ADE80" strokeWidth="6" strokeLinecap="round" />
+                                    <path d="M68 62V48" stroke="#60A5FA" strokeWidth="6" strokeLinecap="round" />
+
+                                    {/* Growth Arrow - Fully contained */}
+                                    <path d="M28 58L42 45L52 50L70 28" stroke="#16A34A" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+                                    <path d="M70 28H58M70 28V40" stroke="#16A34A" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
                             </div>
                             <h1 className="text-xl font-bold text-gray-800 tracking-tight">
                                 FixMyIndia / <span className="text-blue-600">VishwaGuru</span>
                             </h1>
                         </div>
 
-                        {/* Right side icons */}
-                        <div className="hidden md:flex items-center gap-6">
-                            <button className="text-gray-500 hover:text-gray-900 transition-colors">
-                                <Lock className="w-5 h-5" />
-                            </button>
-                            <button className="text-gray-500 hover:text-gray-900 transition-colors">
-                                <ShoppingCart className="w-5 h-5" />
-                            </button>
-                            <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
-                                <span className="text-sm font-medium text-gray-700">Gover Hiera</span>
-                                <div className="w-9 h-9 bg-gray-200 rounded-full overflow-hidden border-2 border-white shadow-sm">
-                                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Gover" alt="Profile" className="w-full h-full" />
-                                </div>
-                            </div>
-                        </div>
+
                     </div>
                 </div>
             </motion.header>
@@ -146,8 +166,7 @@ const Landing = () => {
                             {/* DepMyIndia Card */}
                             <motion.div
                                 whileHover={{ y: -5 }}
-                                onClick={() => navigate('/home')}
-                                className="bg-gradient-to-r from-[#2D60FF] to-[#1E40AF] rounded-3xl p-6 text-white shadow-xl cursor-pointer relative overflow-hidden group"
+                                className="bg-gradient-to-r from-[#2D60FF] to-[#1E40AF] rounded-3xl p-6 text-white shadow-xl relative overflow-hidden group"
                             >
                                 <div className="absolute top-0 right-0 p-4 opacity-20">
                                     <Search className="w-8 h-8" />
@@ -169,8 +188,7 @@ const Landing = () => {
                             {/* Government Services Card */}
                             <motion.div
                                 whileHover={{ y: -5 }}
-                                onClick={() => navigate('/home')}
-                                className="bg-white rounded-3xl p-6 shadow-[0_10px_30px_-5px_rgba(0,0,0,0.05)] border border-gray-100 cursor-pointer group"
+                                className="bg-white rounded-3xl p-6 shadow-[0_10px_30px_-5px_rgba(0,0,0,0.05)] border border-gray-100 group"
                             >
                                 <div className="flex justify-between items-center mb-6">
                                     <h3 className="font-bold text-gray-800">Government Services</h3>
@@ -219,8 +237,7 @@ const Landing = () => {
                     <motion.div
                         variants={itemVariants}
                         whileHover={{ y: -5 }}
-                        className="bg-white p-8 rounded-3xl border border-gray-100 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.02)] text-center group cursor-pointer"
-                        onClick={() => navigate('/home')}
+                        className="bg-white p-8 rounded-3xl border border-gray-100 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.02)] text-center group"
                     >
                         <div className="w-16 h-16 mx-auto mb-6 relative">
                             <div className="absolute inset-0 bg-gray-100 rounded-2xl transform rotate-3 group-hover:rotate-12 transition-transform"></div>
@@ -232,27 +249,24 @@ const Landing = () => {
                         <p className="text-gray-500 text-sm">& Ethics</p>
                     </motion.div>
 
-                    {/* Feature 2 (Green) */}
+                    {/* Feature 2 (Green Accent) */}
                     <motion.div
                         variants={itemVariants}
                         whileHover={{ y: -5 }}
-                        className="bg-[#4ADE80] p-8 rounded-3xl shadow-[0_10px_30px_-10px_rgba(74,222,128,0.4)] text-center group cursor-pointer relative overflow-hidden"
-                        onClick={() => navigate('/home')}
+                        className="bg-white p-8 rounded-3xl border border-gray-100 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.02)] text-center group"
                     >
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -mr-8 -mt-8"></div>
-                        <div className="w-16 h-16 mx-auto mb-6 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm shadow-inner">
-                            <MessageCircle className="w-8 h-8 text-white" />
+                        <div className="w-16 h-16 mx-auto mb-6 bg-green-50 border border-green-100 rounded-2xl flex items-center justify-center">
+                            <MessageCircle className="w-8 h-8 text-green-600" />
                         </div>
-                        <h3 className="font-bold text-white text-lg">Civic Issues</h3>
-                        <p className="text-white/80 text-sm mt-1">Report problems</p>
+                        <h3 className="font-bold text-gray-900 mb-1">Civic Issues</h3>
+                        <p className="text-gray-500 text-sm">Report problems</p>
                     </motion.div>
 
                     {/* Feature 3 */}
                     <motion.div
                         variants={itemVariants}
                         whileHover={{ y: -5 }}
-                        className="bg-white p-8 rounded-3xl border border-gray-100 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.02)] text-center cursor-pointer"
-                        onClick={() => navigate('/home')}
+                        className="bg-white p-8 rounded-3xl border border-gray-100 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.02)] text-center"
                     >
                         <div className="w-16 h-16 mx-auto mb-6 bg-blue-50 border border-blue-100 rounded-2xl flex items-center justify-center">
                             <Star className="w-8 h-8 text-blue-600" />
@@ -276,42 +290,56 @@ const Landing = () => {
                 </motion.div>
 
                 {/* AI Features Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        className="bg-[#2D60FF] p-5 rounded-2xl flex flex-col items-center justify-center text-white aspect-square cursor-pointer shadow-lg shadow-blue-500/20"
-                        onClick={() => navigate('/home')}
-                    >
-                        <Star className="w-8 h-8 mb-3" />
-                        <span className="font-bold text-sm">Smart Solns</span>
-                    </motion.div>
-
-                    <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        className="bg-white border border-gray-100 p-5 rounded-2xl flex flex-col items-center justify-center text-gray-600 aspect-square cursor-pointer hover:shadow-lg transition-shadow"
-                        onClick={() => navigate('/home')}
-                    >
-                        <Users className="w-8 h-8 mb-3" />
-                        <span className="font-bold text-sm">Community</span>
-                    </motion.div>
-
-                    <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        className="bg-white border border-gray-100 p-5 rounded-2xl flex flex-col items-center justify-center text-gray-800 aspect-square cursor-pointer hover:shadow-lg transition-shadow"
-                        onClick={() => navigate('/home')}
-                    >
-                        <Shield className="w-8 h-8 mb-3" />
-                        <span className="font-bold text-sm">Transparecy</span>
-                    </motion.div>
-
-                    <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        className="bg-[#F97316] p-5 rounded-2xl flex flex-col items-center justify-center text-white aspect-square cursor-pointer shadow-lg shadow-orange-500/20"
-                        onClick={() => navigate('/home')}
-                    >
-                        <FileText className="w-8 h-8 mb-3" />
-                        <span className="font-bold text-sm">Reports</span>
-                    </motion.div>
+                {/* Professional Stats/Features Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-16">
+                    {[
+                        {
+                            icon: <Star className="w-6 h-6" />,
+                            title: "Smart Analysis",
+                            subtitle: "AI-Powered Insights",
+                            bg: "bg-blue-50",
+                            color: "text-blue-600",
+                            border: "hover:border-blue-200"
+                        },
+                        {
+                            icon: <Users className="w-6 h-6" />,
+                            title: "Community",
+                            subtitle: "10k+ Active Citizens",
+                            bg: "bg-purple-50",
+                            color: "text-purple-600",
+                            border: "hover:border-purple-200"
+                        },
+                        {
+                            icon: <Shield className="w-6 h-6" />,
+                            title: "Secure & Safe",
+                            subtitle: "Verified Reports",
+                            bg: "bg-emerald-50",
+                            color: "text-emerald-600",
+                            border: "hover:border-emerald-200"
+                        },
+                        {
+                            icon: <FileText className="w-6 h-6" />,
+                            title: "Quick Action",
+                            subtitle: "24h Response Time",
+                            bg: "bg-orange-50",
+                            color: "text-orange-600",
+                            border: "hover:border-orange-200"
+                        }
+                    ].map((item, index) => (
+                        <motion.div
+                            key={index}
+                            whileHover={{ y: -5 }}
+                            className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 group ${item.border}`}
+                        >
+                            <div className="flex items-center justify-between mb-4">
+                                <div className={`w-12 h-12 ${item.bg} ${item.color} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                                    {item.icon}
+                                </div>
+                            </div>
+                            <h3 className="font-bold text-gray-900 text-lg">{item.title}</h3>
+                            <p className="text-gray-500 text-sm font-medium mt-1">{item.subtitle}</p>
+                        </motion.div>
+                    ))}
                 </div>
             </div>
 
