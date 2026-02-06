@@ -51,20 +51,13 @@ function AppContent() {
   const [success, setSuccess] = useState(null);
 
   // Safe navigation helper
-  const navigateToView = (view) => {
+  const navigateToView = useCallback((view) => {
     const validViews = ['home', 'map', 'report', 'action', 'mh-rep', 'pothole', 'garbage', 'vandalism', 'flood', 'infrastructure', 'parking', 'streetlight', 'fire', 'animal', 'blocked', 'tree', 'pest', 'smart-scan', 'grievance-analysis', 'noise', 'safety-check', 'my-reports'];
     if (validViews.includes(view)) {
       navigate(view === 'home' ? '/' : `/${view}`);
-    }
-  }, [error, success]);
-
-  // Safe navigation helper with validation
-  const navigateToView = useCallback((view) => {
-    if (VALID_VIEWS.includes(view.split('/')[0])) {
-      navigate(`/${view}`);
     } else {
       console.warn(`Attempted to navigate to invalid view: ${view}`);
-      navigate('/home');
+      navigate('/');
     }
   }, [navigate]);
 
