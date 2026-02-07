@@ -97,6 +97,13 @@ def migrate_db():
             except Exception:
                 pass
 
+            # Add integrity_hash column for blockchain feature
+            try:
+                conn.execute(text("ALTER TABLE issues ADD COLUMN integrity_hash VARCHAR"))
+                print("Migrated database: Added integrity_hash column.")
+            except Exception:
+                pass
+
             # Add index on user_email
             try:
                 conn.execute(text("CREATE INDEX ix_issues_user_email ON issues (user_email)"))

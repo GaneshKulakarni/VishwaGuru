@@ -25,3 +25,7 @@
 ## 2026-02-05 - Schema Inheritance vs Redefinition
 **Learning:** Redefining similar schemas (e.g., `IssueSummaryResponse` vs `IssueResponse`) leads to maintenance overhead and potential inconsistencies in API responses.
 **Action:** Use Pydantic inheritance to define a base summary schema and extend it for detailed views, ensuring consistent data structures across the app.
+
+## 2026-02-06 - Column Projection vs Full ORM Loading
+**Learning:** Loading full SQLAlchemy model instances for list views or spatial checks is significantly slower and more memory-intensive than selecting only required columns, especially when tables contain large JSON or Text fields.
+**Action:** Use `db.query(Model.col1, Model.col2)` for read-heavy list endpoints and spatial candidate searches. Note that projected results are immutable `Row` objects, so use `db.query(Model).filter(...).update()` for atomic modifications.
