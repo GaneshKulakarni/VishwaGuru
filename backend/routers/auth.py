@@ -10,6 +10,7 @@ from backend.models import User, UserRole
 from backend.schemas import UserCreate, UserResponse, Token, UserLogin
 from backend.config import get_config
 from backend.dependencies import get_current_active_user
+from sqlalchemy.exc import IntegrityError
 from backend.utils import verify_password, get_password_hash
 
 router = APIRouter(
@@ -50,9 +51,13 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
         full_name=user.full_name,
         role=UserRole.USER # Enforce USER role
     )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+    try:
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Email already registered")
     return new_user
 
 @router.post("/token", response_model=Token)

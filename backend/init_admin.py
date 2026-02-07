@@ -21,6 +21,10 @@ def create_admin_user(email, password, full_name="Admin User"):
             print(f"User {email} already exists.")
             return
 
+        if not password or len(password) < 8:
+            print("Error: Password must be at least 8 characters long.")
+            return
+
         hashed_password = get_password_hash(password)
         new_user = User(
             email=email,
@@ -49,9 +53,12 @@ if __name__ == "__main__":
     email = sys.argv[1]
     password = os.getenv("ADMIN_PASSWORD")
     
+    used_arg_password = False
+    
     # Try to get password from args if not in env
     if not password and len(sys.argv) > 2:
         password = sys.argv[2]
+        used_arg_password = True
         print("Warning: Passing password via command line argument is insecure.")
 
     # Interactive fallback
@@ -59,7 +66,11 @@ if __name__ == "__main__":
         password = getpass.getpass("Enter admin password: ")
 
     # Resolve full_name
-    full_name_index = 3 if len(sys.argv) > 2 and sys.argv[2] == password else 2
+    # usage: python init_admin.py <email> [password] [full_name]
+    # If password was from argv, full_name is at index 3.
+    # If password was NOT from argv (env or prompt), full_name is at index 2 (because argv[1] is email).
+    full_name_index = 3 if used_arg_password else 2
+    
     if len(sys.argv) > full_name_index:
          full_name = sys.argv[full_name_index]
     else:
