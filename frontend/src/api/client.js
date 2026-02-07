@@ -37,7 +37,11 @@ export const apiClient = {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    return response.json();
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return response.json();
+    }
+    return null;
   },
   post: async (endpoint, data) => {
     const response = await fetch(`${API_URL}${endpoint}`, {
@@ -50,7 +54,11 @@ export const apiClient = {
       const message = errorData.detail || `HTTP error! status: ${response.status}`;
       throw new Error(message);
     }
-    return response.json();
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return response.json();
+    }
+    return null;
   },
   // For file uploads (FormData)
   postForm: async (endpoint, formData) => {
@@ -66,7 +74,11 @@ export const apiClient = {
       const message = errorData.detail || `HTTP error! status: ${response.status}`;
       throw new Error(message);
     }
-    return response.json();
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return response.json();
+    }
+    return null;
   }
 };
 

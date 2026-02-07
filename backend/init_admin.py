@@ -40,23 +40,29 @@ def create_admin_user(email, password, full_name="Admin User"):
         db.close()
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print("Usage: python init_admin.py <email> <password> [full_name]")
+    if len(sys.argv) < 2:
+        print("Usage: python init_admin.py <email> [password] [full_name]")
         sys.exit(1)
     
     import getpass
 
     email = sys.argv[1]
     password = os.getenv("ADMIN_PASSWORD")
+    
+    # Try to get password from args if not in env
+    if not password and len(sys.argv) > 2:
+        password = sys.argv[2]
+        print("Warning: Passing password via command line argument is insecure.")
+
+    # Interactive fallback
     if not password:
-        if len(sys.argv) > 2:
-            print("Warning: Passing password via command line argument is insecure.")
-            password = sys.argv[2]
-            full_name = sys.argv[3] if len(sys.argv) > 3 else "Admin User"
-        else:
-            password = getpass.getpass("Enter admin password: ")
-            full_name = input("Enter full name (default: Admin User): ") or "Admin User"
+        password = getpass.getpass("Enter admin password: ")
+
+    # Resolve full_name
+    full_name_index = 3 if len(sys.argv) > 2 and sys.argv[2] == password else 2
+    if len(sys.argv) > full_name_index:
+         full_name = sys.argv[full_name_index]
     else:
-        full_name = sys.argv[2] if len(sys.argv) > 2 else "Admin User"
+         full_name = input("Enter full name (default: Admin User): ") or "Admin User"
     
     create_admin_user(email, password, full_name)

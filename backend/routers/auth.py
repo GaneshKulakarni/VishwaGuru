@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -18,22 +18,21 @@ router = APIRouter(
 )
 
 # Load Config
-config = get_config()
-SECRET_KEY = config.secret_key
-ALGORITHM = config.algorithm
-ACCESS_TOKEN_EXPIRE_MINUTES = config.access_token_expire_minutes
+# Config is loaded at runtime to avoid module-level side effects
+
 
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    config = get_config()
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
     
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, config.secret_key, algorithm=config.algorithm)
     return encoded_jwt
 
 # --- Routes ---
@@ -66,7 +65,15 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Inactive user",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    config = get_config()
+    access_token_expires = timedelta(minutes=config.access_token_expire_minutes)
     access_token = create_access_token(
         data={"sub": user.email, "role": user.role.value}, # Store role in token
         expires_delta=access_token_expires
@@ -90,7 +97,15 @@ def login_json(user_credentials: UserLogin, db: Session = Depends(get_db)):
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Inactive user",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    config = get_config()
+    access_token_expires = timedelta(minutes=config.access_token_expire_minutes)
     access_token = create_access_token(
         data={"sub": user.email, "role": user.role.value},
         expires_delta=access_token_expires
