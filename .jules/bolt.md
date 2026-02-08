@@ -29,3 +29,7 @@
 ## 2026-02-06 - Column Projection vs Full ORM Loading
 **Learning:** Loading full SQLAlchemy model instances for list views or spatial checks is significantly slower and more memory-intensive than selecting only required columns, especially when tables contain large JSON or Text fields.
 **Action:** Use `db.query(Model.col1, Model.col2)` for read-heavy list endpoints and spatial candidate searches. Note that projected results are immutable `Row` objects, so use `db.query(Model).filter(...).update()` for atomic modifications.
+
+## 2026-02-07 - Transaction Consolidation for Performance
+**Learning:** Performing multiple `db.commit()` calls in a single endpoint handler increases latency due to multiple round-trips and disk I/O. Using `db.flush()` allows intermediate results (like atomic increments) to be available for queries in the same transaction without the cost of a full commit.
+**Action:** Consolidate multiple database updates into a single transaction. Use `db.flush()` when you need to query the database for values updated via `update()` before the final commit.
