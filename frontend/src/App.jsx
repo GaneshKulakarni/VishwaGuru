@@ -247,6 +247,7 @@ function AppContent() {
                 />
               }
             />
+            <Route path="/verify/:id" element={<VerifyView />} />
             <Route path="/pothole" element={<PotholeDetector onBack={() => navigate('/')} />} />
             <Route path="/garbage" element={<GarbageDetector onBack={() => navigate('/')} />} />
             <Route
