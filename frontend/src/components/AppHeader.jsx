@@ -8,6 +8,7 @@ import LanguageSelector from './LanguageSelector';
 
 const AppHeader = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { user, logout } = useAuth(); // useAuth returns user, not currentUser
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -27,7 +28,7 @@ const AppHeader = () => {
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center cursor-pointer" onClick={() => navigate('/')}>
             <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-500 via-orange-400 to-green-500 drop-shadow-sm">
-              VishwaGuru
+              {t('home.title').split(' - ')[0]}
             </span>
           </div>
 
@@ -58,9 +59,9 @@ const AppHeader = () => {
 
                 {isMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
-                    <Link to="/my-reports" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200" onClick={() => setIsMenuOpen(false)}>My Reports</Link>
+                    <Link to="/my-reports" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200" onClick={() => setIsMenuOpen(false)}>{t('home.issues.myReports')}</Link>
                     <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 transition-colors duration-200">
-                      <LogOut size={14} /> Logout
+                      <LogOut size={14} /> {t('common.cancel').toLowerCase() === 'cancel' ? 'Logout' : t('common.back')}
                     </button>
                   </div>
                 )}
