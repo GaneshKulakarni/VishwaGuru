@@ -380,7 +380,7 @@ const Landing = () => {
                         },
                         {
                             icon: <Users className="w-6 h-6" />,
-                            title: t('home.landing.features.communityAction'),
+                            title: t('home.landing.cards.communityAction'),
                             subtitle: t('home.landing.features.citizenCount'),
                             bg: "bg-purple-50 dark:bg-purple-900/30",
                             color: "text-purple-600 dark:text-purple-400",
