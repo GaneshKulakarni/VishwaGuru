@@ -1,5 +1,6 @@
 import React, { useState, useEffect, Suspense, useCallback, useMemo } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { fakeRecentIssues, fakeResponsibilityMap } from './fakeData';
 import { issuesApi, miscApi } from './api';
 import AppHeader from './components/AppHeader';
@@ -48,6 +49,7 @@ import AdminDashboard from './views/AdminDashboard';
 
 // Create a wrapper component to handle state management
 function AppContent() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { isDarkMode } = useDarkMode();
@@ -260,7 +262,7 @@ function AppContent() {
               element={
                 <div className="flex flex-col h-full">
                   <button onClick={() => navigate('/')} className="self-start text-blue-600 mb-2">
-                    &larr; Back
+                    &larr; {t('common.back')}
                   </button>
                   <VandalismDetector />
                 </div>
@@ -271,7 +273,7 @@ function AppContent() {
               element={
                 <div className="flex flex-col h-full">
                   <button onClick={() => navigate('/')} className="self-start text-blue-600 mb-2">
-                    &larr; Back
+                    &larr; {t('common.back')}
                   </button>
                   <FloodDetector />
                 </div>
@@ -294,7 +296,7 @@ function AppContent() {
             <Route path="/safety-check" element={
               <div className="flex flex-col h-full p-4">
                 <button onClick={() => navigate('/')} className="self-start text-blue-600 mb-2 font-bold">
-                  &larr; Back
+                  &larr; {t('common.back')}
                 </button>
                 <CivicEyeDetector onBack={() => navigate('/')} />
               </div>
