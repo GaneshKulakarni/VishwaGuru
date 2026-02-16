@@ -1,7 +1,7 @@
 import pytest
 import math
-from unittest.mock import MagicMock
-from backend.spatial_utils import haversine_distance, equirectangular_distance, find_nearby_issues
+from unittest.mock import MagicMock, patch
+from backend.spatial_utils import haversine_distance, equirectangular_distance, find_nearby_issues, cluster_issues_dbscan
 from backend.models import Issue
 
 def test_haversine_vs_equirectangular_accuracy():
@@ -24,8 +24,6 @@ def test_haversine_vs_equirectangular_accuracy():
     d4 = equirectangular_distance(lat1, lon1, lat3, lon1)
 
     # Difference increases but should still be small relative to distance
-    # For purely north-south movement, they should be identical on a sphere,
-    # but slight float differences exist.
     assert abs(d3 - d4) < 1.0, f"Difference too large at 10km: {abs(d3 - d4)}"
 
 def test_equirectangular_dateline_wrapping():
@@ -82,6 +80,18 @@ def test_find_nearby_issues_selection(monkeypatch):
 
     assert mock_haversine.called, "Should have called haversine_distance for large radius"
     assert not mock_equirect.called, "Should NOT have called equirectangular_distance for large radius"
+
+def test_missing_sklearn_handling(monkeypatch):
+    """
+    Test that cluster_issues_dbscan handles missing sklearn gracefully.
+    """
+    # Mock HAS_SKLEARN to be False
+    monkeypatch.setattr("backend.spatial_utils.HAS_SKLEARN", False)
+
+    issues = [MagicMock(spec=Issue)]
+    clusters = cluster_issues_dbscan(issues)
+
+    assert clusters == [], "Should return empty list when sklearn is missing"
 
 def test_find_nearby_issues_functional():
     """

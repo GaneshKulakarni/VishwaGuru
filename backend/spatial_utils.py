@@ -3,11 +3,20 @@ Spatial utilities for geospatial operations and deduplication.
 """
 import math
 from typing import List, Tuple, Optional
-from sklearn.cluster import DBSCAN
-import numpy as np
+import logging
+
+try:
+    from sklearn.cluster import DBSCAN
+    import numpy as np
+    HAS_SKLEARN = True
+except ImportError:
+    HAS_SKLEARN = False
+    DBSCAN = None
+    np = None
 
 from backend.models import Issue
 
+logger = logging.getLogger(__name__)
 
 def get_bounding_box(lat: float, lon: float, radius_meters: float) -> Tuple[float, float, float, float]:
     """
@@ -139,6 +148,10 @@ def cluster_issues_dbscan(issues: List[Issue], eps_meters: float = 30.0) -> List
     Returns:
         List of clusters, where each cluster is a list of Issue objects
     """
+    if not HAS_SKLEARN:
+        logger.warning("Scikit-learn not available, skipping DBSCAN clustering.")
+        return []
+
     # Filter issues with valid coordinates
     valid_issues = [
         issue for issue in issues
@@ -159,19 +172,23 @@ def cluster_issues_dbscan(issues: List[Issue], eps_meters: float = 30.0) -> List
     eps_degrees = eps_meters / 111000  # Rough approximation
 
     # Perform DBSCAN clustering
-    db = DBSCAN(eps=eps_degrees, min_samples=1, metric='haversine').fit(
-        np.radians(coordinates)
-    )
+    try:
+        db = DBSCAN(eps=eps_degrees, min_samples=1, metric='haversine').fit(
+            np.radians(coordinates)
+        )
 
-    # Group issues by cluster
-    clusters = {}
-    for i, label in enumerate(db.labels_):
-        if label not in clusters:
-            clusters[label] = []
-        clusters[label].append(valid_issues[i])
+        # Group issues by cluster
+        clusters = {}
+        for i, label in enumerate(db.labels_):
+            if label not in clusters:
+                clusters[label] = []
+            clusters[label].append(valid_issues[i])
 
-    # Return clusters as list of lists (exclude noise points labeled as -1)
-    return [cluster for label, cluster in clusters.items() if label != -1]
+        # Return clusters as list of lists (exclude noise points labeled as -1)
+        return [cluster for label, cluster in clusters.items() if label != -1]
+    except Exception as e:
+        logger.error(f"Error during DBSCAN clustering: {e}")
+        return []
 
 
 def get_cluster_representative(cluster: List[Issue]) -> Issue:
