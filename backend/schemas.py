@@ -28,6 +28,7 @@ class ActionPlan(BaseModel):
     email_subject: Optional[str] = Field(None, description="Email subject line")
     email_body: Optional[str] = Field(None, description="Email body content")
     x_post: Optional[str] = Field(None, description="X (Twitter) post content")
+    relevant_government_rule: Optional[str] = Field(None, description="Relevant government policy or rule")
 
 class ChatRequest(BaseModel):
     query: str = Field(..., min_length=1, max_length=1000, description="Chat query text")

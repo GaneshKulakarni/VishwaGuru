@@ -32,6 +32,7 @@ from backend.spatial_utils import get_bounding_box, find_nearby_issues
 from backend.cache import recent_issues_cache, nearby_issues_cache
 from backend.hf_api_service import verify_resolution_vqa
 from backend.dependencies import get_http_client
+from backend.rag_service import rag_service
 
 logger = logging.getLogger(__name__)
 
@@ -174,9 +175,15 @@ async def create_issue(
             )
             prev_hash = prev_issue[0] if prev_issue and prev_issue[0] else ""
 
-            # Simple but effective SHA-256 chaining
+# Simple but effective SHA-256 chaining
             hash_content = f"{description}|{category}|{prev_hash}"
             integrity_hash = hashlib.sha256(hash_content.encode()).hexdigest()
+
+            # RAG Retrieval (New)
+            relevant_rule = rag_service.retrieve(description)
+            initial_action_plan = None
+            if relevant_rule:
+                initial_action_plan = {"relevant_government_rule": relevant_rule}
 
             new_issue = Issue(
                 reference_id=str(uuid.uuid4()),
@@ -188,7 +195,7 @@ async def create_issue(
                 latitude=latitude,
                 longitude=longitude,
                 location=location,
-                action_plan=None,
+                action_plan=initial_action_plan,
                 integrity_hash=integrity_hash
             )
 
@@ -234,7 +241,7 @@ async def create_issue(
         return IssueCreateWithDeduplicationResponse(
             id=new_issue.id,
             message="Issue reported successfully. Action plan will be generated shortly.",
-            action_plan=None,
+            action_plan=initial_action_plan,
             deduplication_info=deduplication_info,
             linked_issue_id=linked_issue_id
         )
