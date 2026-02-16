@@ -224,6 +224,9 @@ function AppContent() {
                       fetchResponsibilityMap={fetchResponsibilityMap}
                       recentIssues={recentIssues}
                       handleUpvote={handleUpvote}
+                      loadMoreIssues={loadMoreIssues}
+                      hasMore={hasMore}
+                      loadingMore={loadingMore}
                       stats={stats}
                     />
                   </ProtectedRoute>
@@ -238,6 +241,9 @@ function AppContent() {
                       fetchResponsibilityMap={fetchResponsibilityMap}
                       recentIssues={recentIssues}
                       handleUpvote={handleUpvote}
+                      loadMoreIssues={loadMoreIssues}
+                      hasMore={hasMore}
+                      loadingMore={loadingMore}
                       stats={stats}
                     />
                   </ProtectedRoute>

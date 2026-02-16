@@ -13,7 +13,10 @@ Example:
 import sys
 import zipfile
 from pathlib import Path
-from quick_validate import validate_skill
+
+# Ensure sibling scripts are importable regardless of CWD
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from quick_validate import validate_skill  # noqa: E402
 
 
 def package_skill(skill_path, output_dir=None):

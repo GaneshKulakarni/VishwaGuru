@@ -57,7 +57,7 @@ const Home = ({ setView, fetchResponsibilityMap, recentIssues, handleUpvote, loa
   const navigate = useNavigate();
   const [showCameraCheck, setShowCameraCheck] = React.useState(false);
   const [showScrollTop, setShowScrollTop] = React.useState(false);
-  const totalImpact = (stats?.total_issues || 0) + (stats?.resolved_issues || 0);
+  const totalImpact = stats?.resolved_issues || 0;
 
   // Scroll to top function
   const scrollToTop = () => {

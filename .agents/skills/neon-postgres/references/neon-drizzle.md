@@ -172,10 +172,10 @@ import { sql } from "drizzle-orm";
 export const getUsersByRolePrepared = db
   .select()
   .from(usersTable)
-  .where(sql`${usersTable.role} = $1`)
+  .where(sql`${usersTable.role} = ${sql.placeholder('role')}`)
   .prepare("get_users_by_role");
 
-// Usage: getUsersByRolePrepared.execute(['admin'])
+// Usage: getUsersByRolePrepared.execute({ role: 'admin' })
 ```
 
 ### Transactions
