@@ -84,14 +84,26 @@ def test_find_nearby_issues_selection(monkeypatch):
 def test_missing_sklearn_handling(monkeypatch):
     """
     Test that cluster_issues_dbscan handles missing sklearn gracefully.
+    Should return individual clusters to preserve data visibility.
     """
     # Mock HAS_SKLEARN to be False
     monkeypatch.setattr("backend.spatial_utils.HAS_SKLEARN", False)
 
-    issues = [MagicMock(spec=Issue)]
+    issue1 = MagicMock(spec=Issue)
+    issue1.latitude = 10.0
+    issue1.longitude = 10.0
+
+    issue2 = MagicMock(spec=Issue)
+    issue2.latitude = None # Invalid coordinate
+    issue2.longitude = 10.0
+
+    issues = [issue1, issue2]
     clusters = cluster_issues_dbscan(issues)
 
-    assert clusters == [], "Should return empty list when sklearn is missing"
+    # Should return only valid issues as individual clusters
+    assert len(clusters) == 1
+    assert len(clusters[0]) == 1
+    assert clusters[0][0] == issue1
 
 def test_find_nearby_issues_functional():
     """

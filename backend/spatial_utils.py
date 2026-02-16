@@ -149,8 +149,9 @@ def cluster_issues_dbscan(issues: List[Issue], eps_meters: float = 30.0) -> List
         List of clusters, where each cluster is a list of Issue objects
     """
     if not HAS_SKLEARN:
-        logger.warning("Scikit-learn not available, skipping DBSCAN clustering.")
-        return []
+        logger.warning("Scikit-learn not available, returning unclustered issues.")
+        # Return each issue as its own cluster to ensure visibility
+        return [[issue] for issue in issues if issue.latitude is not None and issue.longitude is not None]
 
     # Filter issues with valid coordinates
     valid_issues = [
