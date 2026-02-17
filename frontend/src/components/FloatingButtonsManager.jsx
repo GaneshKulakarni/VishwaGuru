@@ -1,29 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import ChatWidget from './ChatWidget';
 import VoiceInput from './VoiceInput';
 import { ArrowUp } from 'lucide-react';
 
 const FloatingButtonsManager = ({ setView }) => {
-  const [showScrollTop, setShowScrollTop] = useState(false);
 
-  // Show/hide scroll to top button based on scroll position
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 200);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Scroll to top function
   const scrollToTop = () => {
-    document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
-    document.body.scrollTo({ top: 0, behavior: 'smooth' });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleVoiceCommand = (transcript) => {
-    console.log("Voice command:", transcript);
     const lower = transcript.toLowerCase();
 
     // Simple command mapping
