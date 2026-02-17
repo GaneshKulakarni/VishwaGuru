@@ -6,8 +6,10 @@ import { ArrowUp } from 'lucide-react';
 const FloatingButtonsManager = ({ setView }) => {
 
   const scrollToTop = () => {
-    document.documentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    document.body.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    console.log('Arrow button clicked!');
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   };
 
   const handleVoiceCommand = (transcript) => {
