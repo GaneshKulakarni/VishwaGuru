@@ -96,18 +96,18 @@ const Home = ({ setView, fetchResponsibilityMap, recentIssues, handleUpvote, loa
         { id: 'tree', label: t('home.issues.treeHazard'), icon: <TreeDeciduous size={24} />, color: 'text-green-600', bg: 'bg-green-50' },
         { id: 'animal', label: t('home.issues.strayAnimal'), icon: <Dog size={24} />, color: 'text-amber-600', bg: 'bg-amber-50' },
         { id: 'pest', label: t('home.issues.pestControl'), icon: <Bug size={24} />, color: 'text-amber-800', bg: 'bg-amber-50' },
-        { id: 'noise', label: "Noise", icon: <Volume2 size={24} />, color: 'text-purple-600', bg: 'bg-purple-50' },
-        { id: 'crowd', label: "Crowd", icon: <Users size={24} />, color: 'text-red-500', bg: 'bg-red-50' },
-        { id: 'water-leak', label: "Water Leak", icon: <Waves size={24} />, color: 'text-blue-500', bg: 'bg-blue-50' },
-        { id: 'waste', label: "Waste Sorter", icon: <Recycle size={24} />, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+        { id: 'noise', label: t('home.issues.noise'), icon: <Volume2 size={24} />, color: 'text-purple-600', bg: 'bg-purple-50' },
+        { id: 'crowd', label: t('home.issues.crowd'), icon: <Users size={24} />, color: 'text-red-500', bg: 'bg-red-50' },
+        { id: 'water-leak', label: t('home.issues.waterLeak'), icon: <Waves size={24} />, color: 'text-blue-500', bg: 'bg-blue-50' },
+        { id: 'waste', label: t('home.issues.waste'), icon: <Recycle size={24} />, color: 'text-emerald-600', bg: 'bg-emerald-50' },
       ]
     },
     {
       title: t('home.categories.management'),
       icon: <Monitor size={20} className="text-gray-600" />,
       items: [
-        { id: 'safety-check', label: "Civic Eye", icon: <Eye size={24} />, color: 'text-blue-600', bg: 'bg-blue-50' },
-        { id: 'my-reports', label: "My Reports", icon: <CheckCircle size={24} />, color: 'text-teal-600', bg: 'bg-teal-50' },
+        { id: 'safety-check', label: t('home.issues.civicEye'), icon: <Eye size={24} />, color: 'text-blue-600', bg: 'bg-blue-50' },
+        { id: 'my-reports', label: t('home.issues.myReports'), icon: <CheckCircle size={24} />, color: 'text-teal-600', bg: 'bg-teal-50' },
         { id: 'grievance', label: t('home.issues.grievanceManagement'), icon: <AlertTriangle size={24} />, color: 'text-orange-600', bg: 'bg-orange-50' },
         { id: 'stats', label: t('home.issues.viewStats'), icon: <Activity size={24} />, color: 'text-indigo-600', bg: 'bg-indigo-50' },
         { id: 'leaderboard', label: t('home.issues.leaderboard'), icon: <Trophy size={24} />, color: 'text-yellow-600', bg: 'bg-yellow-50' },
@@ -160,7 +160,7 @@ const Home = ({ setView, fetchResponsibilityMap, recentIssues, handleUpvote, loa
               <div className="bg-blue-500 text-white p-3 rounded-full mb-2">
                 <AlertTriangle size={24} />
               </div>
-              <span className="font-semibold text-blue-800 text-sm">Report Issue</span>
+              <span className="font-semibold text-blue-800 text-sm">{t('home.issues.reportIssue')}</span>
             </button>
 
             <button
@@ -170,7 +170,7 @@ const Home = ({ setView, fetchResponsibilityMap, recentIssues, handleUpvote, loa
               <div className="bg-red-500 text-white p-3 rounded-full mb-2">
                 <Camera size={24} />
               </div>
-              <span className="font-semibold text-red-800 text-sm">Pothole</span>
+              <span className="font-semibold text-red-800 text-sm">{t('home.issues.pothole')}</span>
             </button>
 
             <button
@@ -180,7 +180,7 @@ const Home = ({ setView, fetchResponsibilityMap, recentIssues, handleUpvote, loa
               <div className="bg-orange-500 text-white p-3 rounded-full mb-2">
                 <Trash2 size={24} />
               </div>
-              <span className="font-semibold text-orange-800 text-sm">Garbage</span>
+              <span className="font-semibold text-orange-800 text-sm">{t('home.issues.garbage')}</span>
             </button>
 
             <button
@@ -190,7 +190,7 @@ const Home = ({ setView, fetchResponsibilityMap, recentIssues, handleUpvote, loa
               <div className="bg-purple-500 text-white p-3 rounded-full mb-2">
                 <Search size={24} />
               </div>
-              <span className="font-semibold text-purple-800 text-sm">Find MLA</span>
+              <span className="font-semibold text-purple-800 text-sm">{t('home.issues.findMLA')}</span>
             </button>
 
             <button
@@ -200,7 +200,7 @@ const Home = ({ setView, fetchResponsibilityMap, recentIssues, handleUpvote, loa
               <div className="bg-indigo-500 text-white p-3 rounded-full mb-2">
                 <Brush size={24} />
               </div>
-              <span className="font-semibold text-indigo-800 text-sm">Graffiti</span>
+              <span className="font-semibold text-indigo-800 text-sm">{t('home.issues.graffiti')}</span>
             </button>
 
             <button
@@ -210,7 +210,7 @@ const Home = ({ setView, fetchResponsibilityMap, recentIssues, handleUpvote, loa
               <div className="bg-cyan-500 text-white p-3 rounded-full mb-2">
                 <Droplets size={24} />
               </div>
-              <span className="font-semibold text-cyan-800 text-sm">Flood</span>
+              <span className="font-semibold text-cyan-800 text-sm">{t('home.issues.flood')}</span>
             </button>
 
             <button
@@ -220,7 +220,7 @@ const Home = ({ setView, fetchResponsibilityMap, recentIssues, handleUpvote, loa
               <div className="bg-yellow-500 text-white p-3 rounded-full mb-2">
                 <Zap size={24} />
               </div>
-              <span className="font-semibold text-yellow-800 text-sm">Broken Infra</span>
+              <span className="font-semibold text-yellow-800 text-sm">{t('home.issues.brokenInfra')}</span>
             </button>
 
             {/* New Western Style Features */}
@@ -231,7 +231,7 @@ const Home = ({ setView, fetchResponsibilityMap, recentIssues, handleUpvote, loa
               <div className="bg-rose-500 text-white p-3 rounded-full mb-2">
                 <Truck size={24} />
               </div>
-              <span className="font-semibold text-rose-800 text-sm">Illegal Parking</span>
+              <span className="font-semibold text-rose-800 text-sm">{t('home.issues.illegalParking')}</span>
             </button>
 
             <button
@@ -241,7 +241,7 @@ const Home = ({ setView, fetchResponsibilityMap, recentIssues, handleUpvote, loa
               <div className="bg-slate-700 text-white p-3 rounded-full mb-2">
                 <Lightbulb size={24} />
               </div>
-              <span className="font-semibold text-slate-800 text-sm">Dark Street</span>
+              <span className="font-semibold text-slate-800 text-sm">{t('home.issues.darkStreet')}</span>
             </button>
 
             <button
@@ -251,7 +251,7 @@ const Home = ({ setView, fetchResponsibilityMap, recentIssues, handleUpvote, loa
               <div className="bg-red-600 text-white p-3 rounded-full mb-2">
                 <Flame size={24} />
               </div>
-              <span className="font-semibold text-red-900 text-sm">Fire/Smoke</span>
+              <span className="font-semibold text-red-900 text-sm">{t('home.issues.fireSmoke')}</span>
             </button>
 
             <button
@@ -261,7 +261,7 @@ const Home = ({ setView, fetchResponsibilityMap, recentIssues, handleUpvote, loa
               <div className="bg-amber-600 text-white p-3 rounded-full mb-2">
                 <Dog size={24} />
               </div>
-              <span className="font-semibold text-amber-900 text-sm">Stray Animal</span>
+              <span className="font-semibold text-amber-900 text-sm">{t('home.issues.strayAnimal')}</span>
             </button>
 
             <button
@@ -271,7 +271,7 @@ const Home = ({ setView, fetchResponsibilityMap, recentIssues, handleUpvote, loa
               <div className="bg-gray-600 text-white p-3 rounded-full mb-2">
                 <XCircle size={24} />
               </div>
-              <span className="font-semibold text-gray-800 text-sm">Blocked Road</span>
+              <span className="font-semibold text-gray-800 text-sm">{t('home.issues.blockedRoad')}</span>
             </button>
 
             <button
@@ -281,7 +281,7 @@ const Home = ({ setView, fetchResponsibilityMap, recentIssues, handleUpvote, loa
               <div className="bg-green-600 text-white p-3 rounded-full mb-2">
                 <TreeDeciduous size={24} />
               </div>
-              <span className="font-semibold text-green-800 text-sm">Tree Hazard</span>
+              <span className="font-semibold text-green-800 text-sm">{t('home.issues.treeHazard')}</span>
             </button>
 
             <button
@@ -291,7 +291,7 @@ const Home = ({ setView, fetchResponsibilityMap, recentIssues, handleUpvote, loa
               <div className="bg-amber-800 text-white p-3 rounded-full mb-2">
                 <Bug size={24} />
               </div>
-              <span className="font-semibold text-amber-900 text-sm">Pest Control</span>
+              <span className="font-semibold text-amber-900 text-sm">{t('home.issues.pestControl')}</span>
             </button>
 
             <button
@@ -301,7 +301,7 @@ const Home = ({ setView, fetchResponsibilityMap, recentIssues, handleUpvote, loa
               <div className="bg-teal-600 text-white p-3 rounded-full mb-2">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><path d="M13 8H7"></path><path d="M17 12H7"></path></svg>
               </div>
-              <span className="font-semibold text-teal-800 text-sm">Analyze Grievance</span>
+              <span className="font-semibold text-teal-800 text-sm">{t('home.issues.analyzeGrievance')}</span>
             </button>
           </div>
 
@@ -358,21 +358,21 @@ const Home = ({ setView, fetchResponsibilityMap, recentIssues, handleUpvote, loa
             className="flex flex-row items-center justify-center bg-emerald-50 border border-emerald-100 p-4 rounded-xl hover:bg-emerald-100 transition shadow-sm h-16 gap-3 text-emerald-800 font-semibold"
           >
             <MapPin size={20} className="text-emerald-600" />
-            Who is Responsible?
+            {t('home.tools.whoIsResponsible')}
           </button>
           <button
             onClick={() => setView('leaderboard')}
             className="flex flex-row items-center justify-center bg-yellow-50 border border-yellow-100 p-4 rounded-xl hover:bg-yellow-100 transition shadow-sm h-16 gap-3 text-yellow-800 font-semibold"
           >
             <Trophy size={20} className="text-yellow-600" />
-            Top Reporters
+            {t('home.tools.topReporters')}
           </button>
           <button
             onClick={() => setShowCameraCheck(true)}
             className="flex flex-row items-center justify-center bg-slate-50 border border-slate-100 p-4 rounded-xl hover:bg-slate-100 transition shadow-sm h-16 gap-3 text-slate-800 font-semibold"
           >
             <Monitor size={20} className="text-slate-600" />
-            Camera Check
+            {t('home.tools.cameraCheck')}
           </button>
         </div>
 
@@ -383,9 +383,9 @@ const Home = ({ setView, fetchResponsibilityMap, recentIssues, handleUpvote, loa
           <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
             <div className="flex items-center gap-2">
               <Activity size={18} className="text-orange-500" />
-              <h2 className="font-bold text-gray-800">Community Activity</h2>
+              <h2 className="font-bold text-gray-800">{t('home.activity.communityActivity')}</h2>
             </div>
-            <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">Live Feed</span>
+            <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{t('home.activity.liveFeed')}</span>
           </div>
           <div className="divide-y divide-gray-50 max-h-80 overflow-y-auto custom-scrollbar">
             {recentIssues.length > 0 ? (
@@ -416,7 +416,7 @@ const Home = ({ setView, fetchResponsibilityMap, recentIssues, handleUpvote, loa
                         title="Verify Resolution"
                       >
                         <CheckCircle size={12} />
-                        <span className="font-medium">Verify</span>
+                        <span className="font-medium">{t('home.activity.verify')}</span>
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleUpvote(issue.id); }}
@@ -432,7 +432,7 @@ const Home = ({ setView, fetchResponsibilityMap, recentIssues, handleUpvote, loa
             ) : (
               <div className="p-8 text-center text-gray-400 text-sm flex flex-col items-center">
                 <Activity size={32} className="mb-2 opacity-20" />
-                No recent activity to show.
+                {t('home.activity.noActivity')}
               </div>
             )}
           </div>
@@ -446,10 +446,10 @@ const Home = ({ setView, fetchResponsibilityMap, recentIssues, handleUpvote, loa
                 {loadingMore ? (
                   <span className="flex items-center gap-2 justify-center">
                     <div className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                    Loading...
+                    {t('common.loading')}
                   </span>
                 ) : (
-                  'Load More Activity'
+                  t('home.activity.loadMore')
                 )}
               </button>
             </div>

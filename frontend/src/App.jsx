@@ -1,5 +1,6 @@
 import React, { useState, useEffect, Suspense, useCallback, useMemo } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { fakeRecentIssues, fakeResponsibilityMap } from './fakeData';
 import { issuesApi, miscApi } from './api';
 import AppHeader from './components/AppHeader';
@@ -48,6 +49,7 @@ import AdminDashboard from './views/AdminDashboard';
 
 // Create a wrapper component to handle state management
 function AppContent() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { isDarkMode } = useDarkMode();
@@ -65,7 +67,7 @@ function AppContent() {
 
   // Safe navigation helper
   const navigateToView = useCallback((view) => {
-    const validViews = ['home', 'map', 'report', 'action', 'mh-rep', 'pothole', 'garbage', 'vandalism', 'flood', 'infrastructure', 'parking', 'streetlight', 'fire', 'animal', 'blocked', 'tree', 'pest', 'smart-scan', 'grievance-analysis', 'noise', 'safety-check', 'my-reports', 'login', 'signup'];
+    const validViews = ['home', 'map', 'report', 'action', 'mh-rep', 'pothole', 'garbage', 'vandalism', 'flood', 'infrastructure', 'parking', 'streetlight', 'fire', 'animal', 'blocked', 'tree', 'pest', 'smart-scan', 'grievance-analysis', 'noise', 'safety-check', 'my-reports', 'grievance', 'login', 'signup'];
     if (validViews.includes(view)) {
       navigate(view === 'home' ? '/' : `/${view}`);
     } else {
@@ -347,10 +349,14 @@ function AppContent() {
                   <MyReportsView />
                 </ProtectedRoute>
               } />
+              <Route path="/grievance" element={
+                <ProtectedRoute>
+                  <GrievanceView />
+                </ProtectedRoute>
+              } />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
-
         </main>
       </div>
     </div>
