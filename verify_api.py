@@ -3,8 +3,10 @@ import json
 
 base_url = "http://localhost:8000"
 
-print(f"Checking health: {requests.get(f'{base_url}/health').json()}")
-
+try:
+    print(f"Checking health: {requests.get(f'{base_url}/health').json()}")
+except Exception as e:
+    print(f"Error checking health: {e}")
 try:
     recent = requests.get(f"{base_url}/api/issues/recent")
     print(f"Recent issues status: {recent.status_code}")
